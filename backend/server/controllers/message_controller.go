@@ -3,7 +3,7 @@ package controllers
 import (
 	"app/server/database"
 	"app/server/models"
-	"fmt"
+	"app/server/pipelines"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -126,10 +126,8 @@ func ProcessMessages(c *gin.Context) {
 
 		return
 	}
-	for i, Message := range Messages {
-		Message.ProcessedAt = true
-		err = db.Save(&Message).Error
-		fmt.Println(i, Message.Message, err)
+	for _, Message := range Messages {
+		pipelines.ChainProcess(&Message)
 	}
 
 	c.JSON(200, Messages)
