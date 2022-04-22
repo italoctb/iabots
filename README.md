@@ -6,5 +6,4 @@
 docker-compose up
 cd backend
 go run main.go
-
 ```
