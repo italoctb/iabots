@@ -1,0 +1,22 @@
+version: "3.7"
+
+services:
+  db:
+    build:
+      context: ./docker
+      dockerfile: .db
+    image: github.com/italoctb/rest-api-project-go
+    container_name: whatsapp-api-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "25432:5432"
+    environment:
+      POSTGRES_DB: whatsapp
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 123456
+      PGDATA: /var/lib/postgresql/data/whatsapp-api
+    volumes:
+      - webapi-mvc:/var/lib/postgresql/data
+volumes:
+  webapi-mvc:
