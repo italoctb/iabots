@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/italoctb/rest-api-project-go/server/database/migrations"
+	"app/server/database/migrations"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -12,7 +12,7 @@ import (
 var db *gorm.DB
 
 func StartDB() {
-	str := "host=localhost port=25432 user=admin dbname=whatsapp sslmode=disable password=123456"
+	str := "host=0.0.0.0 port=25432 user=admin dbname=whatsapp sslmode=disable password=123456"
 
 	database, err := gorm.Open(postgres.Open(str), &gorm.Config{})
 

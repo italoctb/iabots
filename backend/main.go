@@ -2,9 +2,9 @@ package main
 
 import (
 	//"fmt"
-	"github/italoctb/restAPIproject/server"
+	"app/server"
 
-	"github.com/italoctb/rest-api-project-go/server/database"
+	"app/server/database"
 )
 
 func main() {

@@ -1,8 +1,7 @@
 package routes
 
 import (
-	"github/italoctb/restAPIproject/server/controllers"
-
+	"app/server/controllers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +12,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		{
 			messages.GET("/:id", controllers.ShowMessage)
 			messages.GET("/", controllers.ShowMessages)
+			messages.GET("/process", controllers.ProcessMessages)
 			messages.POST("/", controllers.CreateMessage)
 			messages.PUT("/", controllers.UpdateMessage)
 			messages.DELETE("/:id", controllers.DeleteMessages)

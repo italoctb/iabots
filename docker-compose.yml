@@ -2,10 +2,7 @@ version: "3.7"
 
 services:
   db:
-    build:
-      context: ./docker
-      dockerfile: .db
-    image: github.com/italoctb/rest-api-project-go
+    image: postgres:13-alpine
     container_name: whatsapp-api-db
     restart: unless-stopped
     tty: true

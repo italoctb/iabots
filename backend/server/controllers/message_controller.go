@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"strconv"
-
+	"app/server/database"
+	"app/server/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/italoctb/rest-api-project-go/server/database"
-	"github.com/italoctb/rest-api-project-go/server/models"
+	"strconv"
 )
 
 func ShowMessage(c *gin.Context) {
@@ -111,4 +111,26 @@ func DeleteMessages(c *gin.Context) {
 	}
 
 	c.Status(204)
+}
+
+func ProcessMessages(c *gin.Context) {
+	db := database.GetDatabase()
+
+	var Messages []models.Message
+
+	err := db.Where("processed_at = ?", false).Find(&Messages).Error
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot list Messages: " + err.Error(),
+		})
+
+		return
+	}
+	for i, Message := range Messages {
+		Message.ProcessedAt = true
+		err = db.Save(&Message).Error
+		fmt.Println(i, Message.Message, err)
+	}
+
+	c.JSON(200, Messages)
 }
