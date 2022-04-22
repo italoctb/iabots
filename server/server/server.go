@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github/italoctb/whatsapp-api/server/routes"
+	"github/italoctb/restAPIproject/server/routes"
 	"log"
 
 	"github.com/gin-gonic/gin"
