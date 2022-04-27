@@ -1,12 +1,17 @@
 package main
 
-//"fmt"
-// "app/server"
+import (
+	//"fmt"
+	"app/server"
 
-// "app/server/database"
+	"app/server/database"
+
+	"github.com/joho/godotenv"
+)
 
 func main() {
-	// database.StartDB()
-	// server := server.NewServer()
-	// server.Run()
+	godotenv.Load()
+	database.StartDB()
+	server := server.NewServer()
+	server.Run()
 }

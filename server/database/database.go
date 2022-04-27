@@ -1,10 +1,12 @@
 package database
 
 import (
+	"app/server/database/migrations"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
-	"app/server/database/migrations"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -12,8 +14,15 @@ import (
 var db *gorm.DB
 
 func StartDB() {
-	str := "host=0.0.0.0 port=25432 user=admin dbname=whatsapp sslmode=disable password=123456"
+	port := os.Getenv("DATABASE_PORT")
+	url := os.Getenv("DATABASE_HOST")
+	user := os.Getenv("DATABASE_USER")
+	password := os.Getenv("DATABASE_PASSWORD")
+	dbname := os.Getenv("DATABASE_NAME")
 
+	str := "host=" + url + " port=" + port + " user=" + user + " dbname=" + dbname + " sslmode=disable password=" + password
+
+	fmt.Println(str)
 	database, err := gorm.Open(postgres.Open(str), &gorm.Config{})
 
 	if err != nil {
