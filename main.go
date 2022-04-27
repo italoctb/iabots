@@ -1,14 +1,12 @@
 package main
 
-import (
-	//"fmt"
-	"app/server"
+//"fmt"
+// "app/server"
 
-	"app/server/database"
-)
+// "app/server/database"
 
 func main() {
-	database.StartDB()
-	server := server.NewServer()
-	server.Run()
+	// database.StartDB()
+	// server := server.NewServer()
+	// server.Run()
 }
