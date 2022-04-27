@@ -1,6 +1,19 @@
 version: "3.7"
 
 services:
+  app:
+    command: whatsapp-api-pv
+    build: .
+    environment:
+      DATABASE_HOST: 'localhost'
+      DATABASE_NAME: 'whatsapp'
+      DATABASE_PASSWORD: '123456'
+      DATABASE_PORT: '25432'
+      DATABASE_USER: 'admin'
+    depends_on:
+      - db
+    ports:
+      - "localhost:5000:5000"
   db:
     image: postgres:13-alpine
     container_name: whatsapp-api-db

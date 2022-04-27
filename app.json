@@ -1,0 +1,7 @@
+{
+  "name": "Go Websocket Chat Demo",
+  "image": "heroku/go:1.18",
+  "mount_dir": "src/github.com/heroku-examples/go-websocket-chat-demo",
+  "repository": "https://github.com/italoctb/whatsapp-api-pv",
+  "addons": ["heroku-redis"]
+}

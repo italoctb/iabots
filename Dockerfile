@@ -1,12 +1,12 @@
 FROM golang:1.18
 
-WORKDIR /usr/src/app
+COPY . /src
+WORKDIR /src
 
-# pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
-COPY go.mod go.sum ./
-RUN go mod download && go mod verify
+RUN CGO_ENABLE=0 GOOS=linux go build -mod=vendor -o whatsapp-api-pv .
 
-COPY . .
-RUN go build -v -o /usr/local/bin/app ./...
+FROM heroku/heroku:18
+WORKDIR /app
 
-CMD ["app"]
+COPY --from=0 /src/whatsapp-api-pv /app
+CMD ["./whatsapp-api-pv"]
