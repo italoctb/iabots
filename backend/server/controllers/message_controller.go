@@ -47,7 +47,7 @@ func CreateMessage(c *gin.Context) {
 		return
 	}
 	Message.ProcessedAt = false
-	Message.Step = 1
+	Message.Step = CheckStep(&Message)
 	err = db.Create(&Message).Error
 
 	if err != nil {
@@ -64,7 +64,7 @@ func ShowMessages(c *gin.Context) {
 
 	var Messages []models.Message
 
-	err := db.Find(&Messages).Error
+	err := db.Order("id desc").Find(&Messages).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -132,4 +132,14 @@ func ProcessMessages(c *gin.Context) {
 	}
 
 	c.JSON(200, Messages)
+}
+
+func CheckStep(Message *models.Message) int {
+	var LastMessage models.Message
+	db := database.GetDatabase()
+	err := db.Where("wid_sender = ?", Message.WidSender).Last(&LastMessage).Error
+	if err != nil {
+		return 0
+	}
+	return LastMessage.Step
 }
