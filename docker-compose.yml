@@ -13,7 +13,7 @@ services:
     depends_on:
       - db
     ports:
-      - "localhost:5000:5000"
+      - "127.0.0.1:5000:5000"
   db:
     image: postgres:13-alpine
     container_name: whatsapp-api-db
