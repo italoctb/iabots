@@ -1,1 +1,1 @@
-web: bin/whatsapp
+web: backend/bin/whatsapp
