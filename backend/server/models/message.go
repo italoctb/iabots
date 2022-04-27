@@ -8,9 +8,11 @@ import (
 
 type Message struct {
 	ID          uint           `json:"id" gorm:"primaryKey"`
-	WID         string         `json:"wid"`
+	WidSender   string         `json:"widSender"`
+	WidReceiver string         `json:"widReceiver"`
 	Message     string         `json:"message"`
 	ProcessedAt bool           `json:"processed"`
+	Step        int            `json: step"`
 	CreatedAt   time.Time      `json:"created"`
 	UpdateAt    time.Time      `json:"updated"`
 	DeleteAt    gorm.DeletedAt `gorm:"index" json:"deleted"`

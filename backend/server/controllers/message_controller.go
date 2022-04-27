@@ -47,6 +47,7 @@ func CreateMessage(c *gin.Context) {
 		return
 	}
 	Message.ProcessedAt = false
+	Message.Step = 1
 	err = db.Create(&Message).Error
 
 	if err != nil {
