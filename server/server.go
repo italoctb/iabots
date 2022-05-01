@@ -3,6 +3,7 @@ package server
 import (
 	"app/server/routes"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +14,8 @@ type Server struct {
 }
 
 func NewServer() Server {
-	return Server{port: "5000", server: gin.Default()}
+	port := os.Getenv("PORT")
+	return Server{port: port, server: gin.Default()}
 }
 
 func (s *Server) Run() {
