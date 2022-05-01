@@ -5,3 +5,7 @@ setup:
 build:
   docker:
     web: Dockerfile
+    client: ./client/Dockerfile
+  config:
+    NODE_ENV: production
+

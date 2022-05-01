@@ -1,6 +1,19 @@
 version: "3.7"
 
 services:
+
+  client:
+    container_name: whatsapp-web
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    volumes:
+      - "/client:/app"
+      - "/app/node_modules"
+    ports:
+      - '3001:3000'
+    environment:
+      - NODE_ENV=development
   app:
     command: whatsapp-api-pv
     build: .
