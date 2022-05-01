@@ -2,10 +2,13 @@ package routes
 
 import (
 	"app/server/controllers"
+
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
 func ConfigRoutes(router *gin.Engine) *gin.Engine {
+	router.Use(static.Serve("/", static.LocalFile("./client/build", true)))
 	main := router.Group("api/v1")
 	{
 		messages := main.Group("messages")

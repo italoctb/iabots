@@ -3,6 +3,7 @@ FROM golang:1.18
 COPY . /src
 WORKDIR /src
 
+RUN
 RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -o whatsapp-api-pv .
 
 FROM heroku/heroku:18
