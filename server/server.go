@@ -1,6 +1,7 @@
 package server
 
 import (
+	"app/client"
 	"app/server/routes"
 	"log"
 	"os"
@@ -21,6 +22,7 @@ func NewServer() Server {
 func (s *Server) Run() {
 
 	router := routes.ConfigRoutes(s.server)
+	router = client.ServerSideHandler(router)
 
 	log.Print("Server is running at port: " + s.port)
 	log.Fatal(router.Run(":" + s.port))
