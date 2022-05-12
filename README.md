@@ -7,7 +7,6 @@ You have to start copying the .env.example to .env to set basic setup of db
 
 
 ```bash
-docker-compose up
-cd backend
-go run main.go
+docker-compose up -d --build
 ```
+Now just open the http://localhost:5000/api/v1/messages

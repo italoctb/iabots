@@ -1,45 +1,41 @@
 version: "3.7"
 
 services:
-
-  client:
-    container_name: whatsapp-web
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    volumes:
-      - "/client:/app"
-      - "/app/node_modules"
-    ports:
-      - '3001:3000'
-    environment:
-      - NODE_ENV=development
-  app:
-    command: whatsapp-api-pv
-    build: .
-    environment:
-      DATABASE_HOST: 'localhost'
-      DATABASE_NAME: 'whatsapp'
-      DATABASE_PASSWORD: '123456'
-      DATABASE_PORT: '25432'
-      DATABASE_USER: 'admin'
-    depends_on:
-      - db
-    ports:
-      - "127.0.0.1:5000:5000"
   db:
     image: postgres:13-alpine
     container_name: whatsapp-api-db
     restart: unless-stopped
     tty: true
     ports:
-      - "25432:5432"
+      - 5432:5432
     environment:
       POSTGRES_DB: whatsapp
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 123456
       PGDATA: /var/lib/postgresql/data/whatsapp-api
+    networks:
+      - mynet
     volumes:
       - webapi-mvc:/var/lib/postgresql/data
+  app:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    container_name: whatsapp-api
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - mynet
+    ports:
+      - 5000:5000
+
 volumes:
   webapi-mvc:
+
+networks:
+  mynet:
+    driver: bridge

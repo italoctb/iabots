@@ -3,7 +3,6 @@ package main
 import (
 	//"fmt"
 	"app/server"
-
 	"app/server/database"
 
 	"github.com/joho/godotenv"

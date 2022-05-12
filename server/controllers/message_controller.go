@@ -4,8 +4,9 @@ import (
 	"app/server/database"
 	"app/server/models"
 	"app/server/pipelines"
-	"github.com/gin-gonic/gin"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ShowMessage(c *gin.Context) {
@@ -55,7 +56,6 @@ func CreateMessage(c *gin.Context) {
 			"error": "cannot create Message: " + err.Error(),
 		})
 	}
-
 	c.JSON(200, Message)
 }
 
