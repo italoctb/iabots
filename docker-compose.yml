@@ -20,7 +20,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: dev.Dockerfile
+      dockerfile: k8s/dockers/go.dev.Dockerfile
     container_name: whatsapp-api
     volumes:
       - ./:/app
@@ -32,6 +32,23 @@ services:
       - mynet
     ports:
       - 5000:5000
+
+  client:
+    build:
+      context: .
+      dockerfile:  k8s/dockers/react.dev.Dockerfile
+    container_name: whatsapp-client
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - /client/node_modules
+      - ./client:/client
+    ports:
+      - 3000:3000
+    depends_on:
+      - app
+    networks:
+      - mynet
 
 volumes:
   webapi-mvc:
