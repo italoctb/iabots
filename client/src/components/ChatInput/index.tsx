@@ -10,9 +10,9 @@ type Props = {
 
 export default ({ onSent }: Props) => {
   const [text, setText] = useState<string>("");
-  const handleKeyDown = (event: { key: string; }) => {
+  const handleKeyDown = (event: { key: string }) => {
     if (event.key === "Enter") {
-      sendMsg()
+      sendMsg();
     }
   };
   const sendMsg = async () => {
@@ -24,22 +24,15 @@ export default ({ onSent }: Props) => {
         }
       );
       setText("");
+      setTimeout(async () => {
+        await axios.get("http://localhost:5000/api/v1/messages/process");
+        onSent();
+      }, 500);
       onSent();
     } catch (e) {
       console.error(e);
     }
   };
-
-const process = async () => {
-  try {
-    const response = await axios.get(
-      "http://localhost:5000/api/v1/messages/process",
-    );
-    onSent();
-  } catch (e) {
-    console.error(e);
-  }
-};
 
   return (
     <div
@@ -51,6 +44,7 @@ const process = async () => {
       <TextInput
         placeholder="Write a message"
         value={text}
+        style={{ flex: 1 }}
         onChange={(event) => setText(event.target.value)}
         onSubmit={() => sendMsg()}
         onKeyDown={handleKeyDown}
@@ -62,13 +56,6 @@ const process = async () => {
         leftIcon={<Send size={14} />}
       >
         Send
-      </Button>
-      <Button
-        variant="outline"
-        onClick={() => process()}
-        leftIcon={<Asset size={14} />}
-      >
-        Process
       </Button>
     </div>
   );
