@@ -3,10 +3,10 @@ package server
 import (
 	"app/server/routes"
 	"app/server/ssr"
-	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
+	"log"
+	"os"
 )
 
 type Server struct {
