@@ -14,4 +14,5 @@ type Option struct {
 	ID         uint   `json:"id" gorm:"primaryKey"`
 	Label      string `json:"label"`
 	TemplateID uint   `json:"template_id"`
+	Goto       uint   `json:"goto"`
 }
