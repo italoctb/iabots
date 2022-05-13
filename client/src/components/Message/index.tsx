@@ -9,7 +9,7 @@ type Props = {
 export default ({ message, created }: Props) => {
   return (
     <div style={{ display: "flex", maxWidth: '600px' }}>
-      <p>{message}</p>
+      <p style={{whiteSpace: 'pre-line'}}>{message}</p>
       <small
         style={{ alignSelf: "flex-end", margin: "10px", fontSize: "10px" }}
       >
