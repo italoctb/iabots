@@ -63,6 +63,8 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			templates.GET("/:id", controllers.ShowTemplate)
 			templates.POST("/", controllers.CreateTemplate)
 			templates.POST("/:id", controllers.AddOption)
+			templates.PUT("/:id", controllers.UpdateTemplate)
+			templates.POST("/option/:id", controllers.UpdateOption)
 		}
 	}
 	return router

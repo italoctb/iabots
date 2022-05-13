@@ -62,6 +62,38 @@ func AddOption(c *gin.Context) {
 	c.JSON(200, Option)
 }
 
+func UpdateTemplate(c *gin.Context) {
+	db := database.GetDatabase()
+	var Template models.Template
+	err := c.ShouldBindJSON(&Template)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Cannot bind the JSON"})
+		return
+	}
+	err = db.Save(&Template).Error
+	if err != nil {
+		c.JSON(400, gin.H{"error": "cannot update Template: " + err.Error()})
+	}
+
+	c.JSON(200, Template)
+}
+
+func UpdateOption(c *gin.Context) {
+	db := database.GetDatabase()
+	var Option models.Option
+	err := c.ShouldBindJSON(&Option)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Cannot bind the JSON"})
+		return
+	}
+	err = db.Save(&Option).Error
+	if err != nil {
+		c.JSON(400, gin.H{"error": "cannot update Option: " + err.Error()})
+	}
+
+	c.JSON(200, Option)
+}
+
 func ShowTemplate(c *gin.Context) {
 	id := c.Param("id")
 	newid, err := strconv.Atoi(id)
