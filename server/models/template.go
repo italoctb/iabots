@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"strconv"
+
+	"gorm.io/gorm"
+)
 
 type Template struct {
 	gorm.Model
@@ -16,4 +20,12 @@ type Option struct {
 	Label      string `json:"label"`
 	TemplateID uint   `json:"template_id"`
 	Goto       string `json:"goto"`
+}
+
+func (t Template) GetMessage() string {
+	msg := t.TemplateMessage + "\n"
+	for index, Option := range t.Options {
+		msg += string(strconv.Itoa(index)) + ". " + Option.Label + "\n"
+	}
+	return msg
 }

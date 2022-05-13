@@ -75,7 +75,7 @@ func ShowTemplate(c *gin.Context) {
 
 	var Template models.Template
 	err = db.Preload("Options").First(&Template, newid).Error
-
+	Template.TemplateMessage = Template.GetMessage()
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": "cannot find Template: " + err.Error(),
