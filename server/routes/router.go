@@ -4,7 +4,6 @@ import (
 	"app/server/controllers"
 	"app/server/database"
 	"app/server/models"
-	"fmt"
 	"os"
 	"strconv"
 
@@ -15,6 +14,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", os.Getenv("FRONTEND_HOST"))
 		c.Header("Access-Control-Allow-Headers", "*")
+		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
@@ -35,9 +35,6 @@ func StartSessionMiddleware() gin.HandlerFunc {
 			db.First(&FirstTemplate)
 			Session.State = strconv.FormatUint(uint64(FirstTemplate.ID), 10)
 			db.Create(&Session)
-		} else {
-			t, _ := Session.GetActualTemplate(db)
-			fmt.Println(t.GetMessage())
 		}
 		c.Next()
 	}
@@ -60,11 +57,12 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		}
 		templates := main.Group("templates")
 		{
+			templates.GET("/", controllers.ShowTemplates)
 			templates.GET("/:id", controllers.ShowTemplate)
 			templates.POST("/", controllers.CreateTemplate)
 			templates.POST("/:id", controllers.AddOption)
 			templates.PUT("/:id", controllers.UpdateTemplate)
-			templates.POST("/option/:id", controllers.UpdateOption)
+			templates.PUT("/option/:id", controllers.UpdateOption)
 		}
 	}
 	return router

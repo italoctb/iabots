@@ -3,6 +3,7 @@ package controllers
 import (
 	"app/server/database"
 	"app/server/models"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -81,12 +82,14 @@ func UpdateTemplate(c *gin.Context) {
 func UpdateOption(c *gin.Context) {
 	db := database.GetDatabase()
 	var Option models.Option
-	err := c.ShouldBindJSON(&Option)
+	db.First()
+
+	fmt.Printf(Option.Goto)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot bind the JSON"})
 		return
 	}
-	err = db.Save(&Option).Error
+	err = db.Model(&Option).Updates(&Option).Error
 	if err != nil {
 		c.JSON(400, gin.H{"error": "cannot update Option: " + err.Error()})
 	}
@@ -117,4 +120,19 @@ func ShowTemplate(c *gin.Context) {
 	}
 
 	c.JSON(200, Template)
+}
+
+func ShowTemplates(c *gin.Context) {
+	db := database.GetDatabase()
+	var Templates []models.Template
+	err := db.Preload("Options").Find(&Templates).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot find Template: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, Templates)
 }

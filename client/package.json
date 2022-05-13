@@ -6,9 +6,6 @@
   "dependencies": {
     "@mantine/core": "^4.2.4",
     "@mantine/hooks": "^4.2.4",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.2.0",
-    "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.0",
     "@types/node": "^16.11.34",
     "@types/react": "^18.0.9",
@@ -31,8 +28,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "react-app"
     ]
   },
   "browserslist": {
