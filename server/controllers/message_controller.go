@@ -4,8 +4,9 @@ import (
 	"app/server/database"
 	"app/server/models"
 	"app/server/pipelines"
-	"github.com/gin-gonic/gin"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ShowMessage(c *gin.Context) {
@@ -47,7 +48,7 @@ func CreateMessage(c *gin.Context) {
 		return
 	}
 	Message.ProcessedAt = false
-	Message.Step = CheckStep(&Message)
+	Message.Path = CheckStep(&Message)
 	err = db.Create(&Message).Error
 
 	if err != nil {
@@ -141,5 +142,5 @@ func CheckStep(Message *models.Message) int {
 	if err != nil {
 		return 0
 	}
-	return LastMessage.Step
+	return LastMessage.Path
 }

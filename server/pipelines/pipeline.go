@@ -10,46 +10,70 @@ func ChainProcess(Message *models.Message) error {
 	if err != nil {
 		return err
 	}
-	err = SecondLayerMessage(Message)
+	err = FirstLayerMessage(Message)
 	if err != nil {
 		return err
 	}
-	err = ThirdLayerMessage(Message)
+	err = FirstLayerAnswerMessage(Message)
 	if err != nil {
 		return err
 	}
-	err = FourthLayerMessage(Message)
+	err = GoodbyeMessage(Message)
+	if err != nil {
+		return err
+	}
+	err = GoodbyeAnswerMessage(Message)
 	return err
 }
 
 func WelcomeMessage(Message *models.Message) error {
 	var AnswerMessage models.Message
 	db := database.GetDatabase()
-	if !Message.ProcessedAt && Message.Step == 0 && Message.WidSender != "Numero do italo" {
+	if !Message.ProcessedAt && Message.Path == 0 && Message.WidSender != "Numero do italo" {
 		AnswerMessage.WidSender = "Numero do Ítalo"
 		AnswerMessage.WidReceiver = Message.WidSender
 		AnswerMessage.Message = "Olá, Boa noite! \n \n Conhece nossas opções? \n \n 1 - Função A \n \n 2 - Função B \n \n 3 - Função C"
 		AnswerMessage.ProcessedAt = true
-		AnswerMessage.Step = 999
+		AnswerMessage.Path = 999
 		err := db.Save(&AnswerMessage).Error
 		if err != nil {
 			return err
 		}
-		Message.Step = 1
+		Message.Path = 1
 		Message.ProcessedAt = true
 	}
 	err := db.Save(&Message).Error
 	return err
 }
 
-func SecondLayerMessage(Message *models.Message) error {
+func FirstLayerMessage(Message *models.Message) error {
 	var AnswerMessage models.Message
 	db := database.GetDatabase()
-	if !Message.ProcessedAt && Message.Step == 1 && Message.WidSender != "Numero do italo" {
+	if !Message.ProcessedAt && Message.Path == 0 && Message.WidSender != "Numero do italo" {
+		AnswerMessage.WidSender = "Numero do Ítalo"
+		AnswerMessage.WidReceiver = Message.WidSender
+		AnswerMessage.Message = "Olá, Boa noite! \n \n Conhece nossas opções? \n \n 1 - Função A \n \n 2 - Função B \n \n 3 - Função C"
+		AnswerMessage.ProcessedAt = true
+		AnswerMessage.Path = 999
+		err := db.Save(&AnswerMessage).Error
+		if err != nil {
+			return err
+		}
+		Message.Path = 1
+		Message.ProcessedAt = true
+	}
+	err := db.Save(&Message).Error
+	return err
+}
+
+func FirstLayerAnswerMessage(Message *models.Message) error {
+	var AnswerMessage models.Message
+	db := database.GetDatabase()
+	if !Message.ProcessedAt && Message.Path == 1 && Message.WidSender != "Numero do italo" {
 		AnswerMessage.WidSender = "Numero do Ítalo"
 		AnswerMessage.WidReceiver = Message.WidSender
 		AnswerMessage.ProcessedAt = true
-		AnswerMessage.Step = 999
+		AnswerMessage.Path = 999
 		switch Message.Message {
 		case "1":
 			AnswerMessage.Message = "Função A"
@@ -58,29 +82,29 @@ func SecondLayerMessage(Message *models.Message) error {
 		case "3":
 			AnswerMessage.Message = "Função C"
 		default:
-			return DefaultMessage(Message)
+			return FirstLayerDefaultMessage(Message)
 		}
 		err := db.Save(&AnswerMessage).Error
 		if err != nil {
 			return err
 		}
-		Message.Step = 2
+		Message.Path = 2
 		Message.ProcessedAt = true
 	}
 	err := db.Save(&Message).Error
 	return err
 }
 
-func ThirdLayerMessage(Message *models.Message) error {
+func GoodbyeMessage(Message *models.Message) error {
 	var AnswerMessage models.Message
 	db := database.GetDatabase()
-	if Message.ProcessedAt && Message.Step == 2 && Message.WidSender != "Numero do italo" {
+	if Message.ProcessedAt && Message.Path == 2 && Message.WidSender != "Numero do italo" {
 		AnswerMessage.WidSender = "Numero do Ítalo"
 		AnswerMessage.WidReceiver = Message.WidSender
 		AnswerMessage.ProcessedAt = true
-		AnswerMessage.Step = 999
+		AnswerMessage.Path = 999
 		AnswerMessage.Message = "O que mais posso estar fazendo por você? \n \n Digite uma das opções abaixo: \n \n 1 - Desejo voltar para o menu inicial. \n \n 2 - Desejo Encerrar o atendimento."
-		Message.Step = 3
+		Message.Path = 3
 		err := db.Save(&AnswerMessage).Error
 		if err != nil {
 			return err
@@ -91,24 +115,24 @@ func ThirdLayerMessage(Message *models.Message) error {
 	return err
 }
 
-func FourthLayerMessage(Message *models.Message) error {
+func GoodbyeAnswerMessage(Message *models.Message) error {
 	var AnswerMessage models.Message
 	db := database.GetDatabase()
-	if !Message.ProcessedAt && Message.Step == 3 && Message.WidSender != "Numero do italo" {
+	if !Message.ProcessedAt && Message.Path == 3 && Message.WidSender != "Numero do italo" {
 		AnswerMessage.WidSender = "Numero do Ítalo"
 		AnswerMessage.WidReceiver = Message.WidSender
 		AnswerMessage.ProcessedAt = true
-		AnswerMessage.Step = 999
+		AnswerMessage.Path = 999
 		switch Message.Message {
 		case "1":
-			Message.Step = 0
+			Message.Path = 0
 			Message.ProcessedAt = false
 			return ChainProcess(Message)
 		case "2":
-			Message.Step = 0
+			Message.Path = 0
 			AnswerMessage.Message = "Obrigado pela preferência!"
 		default:
-			return DefaultMessage(Message)
+			return DefaultGoodbyeMessage(Message)
 		}
 		err := db.Save(&AnswerMessage).Error
 		if err != nil {
@@ -120,16 +144,33 @@ func FourthLayerMessage(Message *models.Message) error {
 	return err
 }
 
-func DefaultMessage(Message *models.Message) error {
+func FirstLayerDefaultMessage(Message *models.Message) error {
 	var AnswerMessage models.Message
 	db := database.GetDatabase()
 	AnswerMessage.WidSender = "Numero do Ítalo"
 	AnswerMessage.WidReceiver = Message.WidSender
 	AnswerMessage.ProcessedAt = true
-	AnswerMessage.Step = 999
-	if !Message.ProcessedAt && Message.Step == 1 && Message.WidSender != "Numero do italo" {
+	AnswerMessage.Path = 999
+	if !Message.ProcessedAt && Message.Path == 1 && Message.WidSender != "Numero do italo" {
 		AnswerMessage.Message = "Não Entendi :( \n \n Por favor digite uma das opções abaixo: \n \n 1 - Função A. \n \n 2 - Função B. \n \n 3 - Função C."
-	} else if !Message.ProcessedAt && Message.Step == 3 {
+	}
+	err := db.Save(&AnswerMessage).Error
+	if err != nil {
+		return err
+	}
+	Message.ProcessedAt = true
+	err = db.Save(&Message).Error
+	return err
+}
+
+func DefaultGoodbyeMessage(Message *models.Message) error {
+	var AnswerMessage models.Message
+	db := database.GetDatabase()
+	AnswerMessage.WidSender = "Numero do Ítalo"
+	AnswerMessage.WidReceiver = Message.WidSender
+	AnswerMessage.ProcessedAt = true
+	AnswerMessage.Path = 999
+	if !Message.ProcessedAt && Message.Path == 3 {
 		AnswerMessage.Message = "Não Entendi :( \n \n Por favor digite uma das opções abaixo: \n \n 1 - Desejo voltar para o menu inicial. \n \n 2 - Desejo Encerrar o atendimento."
 	}
 	err := db.Save(&AnswerMessage).Error
