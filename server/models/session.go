@@ -15,12 +15,12 @@ type Session struct {
 	DeleteAt  gorm.DeletedAt `gorm:"index" json:"deleted"`
 }
 
-func (s Session) GetActualMessage(db *gorm.DB) (string, error) {
-	var Template Template
+func (s Session) GetActualTemplate(db *gorm.DB) (Template, error) {
+	var t Template
 	id, err := strconv.Atoi(s.State)
 	if err != nil {
-		return "", err
+		return Template{}, err
 	}
-	db.Where("ID=?", id).Preload("Options").First(&Template)
-	return Template.GetMessage(), err
+	db.Where("ID=?", id).Preload("Options").First(&t)
+	return t, err
 }

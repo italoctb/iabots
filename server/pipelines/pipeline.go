@@ -5,20 +5,22 @@ import (
 	"app/server/models"
 )
 
+func SelectOptionResponse(Message *models.Message) error {
+	var Session models.Session
+	db := database.GetDatabase()
+	db.Last(&Session)
+	Template, err := Session.GetActualTemplate(db)
+	newMessage := models.Message{Message: Template.GetMessage(),
+		ProcessedAt: true}
+	db.Create(&newMessage)
+	return err
+}
+
 func ChainProcess(Message *models.Message) error {
-	err := WelcomeMessage(Message)
-	if err != nil {
-		return err
-	}
-	err = SecondLayerMessage(Message)
-	if err != nil {
-		return err
-	}
-	err = ThirdLayerMessage(Message)
-	if err != nil {
-		return err
-	}
-	err = FourthLayerMessage(Message)
+	err := SelectOptionResponse(Message)
+	Message.ProcessedAt = true
+	db := database.GetDatabase()
+	db.Save(&Message)
 	return err
 }
 

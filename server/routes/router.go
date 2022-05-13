@@ -36,7 +36,8 @@ func StartSessionMiddleware() gin.HandlerFunc {
 			Session.State = strconv.FormatUint(uint64(FirstTemplate.ID), 10)
 			db.Create(&Session)
 		} else {
-			fmt.Println(Session.GetActualMessage(db))
+			t, _ := Session.GetActualTemplate(db)
+			fmt.Println(t.GetMessage())
 		}
 		c.Next()
 	}
