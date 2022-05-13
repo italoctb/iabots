@@ -35,6 +35,12 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			messages.PUT("/", controllers.UpdateMessage)
 			messages.DELETE("/:id", controllers.DeleteMessages)
 		}
+		templates := main.Group("templates")
+		{
+			templates.GET("/:id", controllers.ShowTemplate)
+			templates.POST("/", controllers.CreateTemplate)
+			templates.POST("/:id", controllers.AddOption)
+		}
 	}
 	return router
 }

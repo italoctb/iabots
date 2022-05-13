@@ -38,8 +38,8 @@ export default () => {
         }}
       >
         {!data && !error && <Loader />}
-        {data?.map((item) => {
-          return <Message {...item} />;
+        {data?.map((item, index) => {
+          return <Message key={index} {...item} />;
         })}
       </div>
       <ChatInput onSent={mutate} />
