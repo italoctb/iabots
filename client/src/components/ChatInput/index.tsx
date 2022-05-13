@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Button, TextInput } from "@mantine/core";
-import { Send, Asset } from "tabler-icons-react";
+import { Send } from "tabler-icons-react";
 
-import axios from "axios";
+import { sendMessage } from "../../requests";
 
 type Props = {
   onSent(): void;
@@ -17,17 +17,8 @@ export default ({ onSent }: Props) => {
   };
   const sendMsg = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/v1/messages/",
-        {
-          message: text,
-        }
-      );
+      await sendMessage(text)
       setText("");
-      setTimeout(async () => {
-        await axios.get("http://localhost:5000/api/v1/messages/process");
-        onSent();
-      }, 500);
       onSent();
     } catch (e) {
       console.error(e);
