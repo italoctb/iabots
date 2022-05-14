@@ -133,3 +133,24 @@ func ShowTemplates(c *gin.Context) {
 
 	c.JSON(200, Templates)
 }
+
+func DeleteTemplate(c *gin.Context) {
+	id := c.Param("id")
+	newid, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "ID has to be a integer",
+		})
+		return
+	}
+
+	db := database.GetDatabase()
+	err = db.Delete(&models.Template{}, newid).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Cannot find the ID: " + err.Error()})
+		return
+	}
+
+	c.Status(204)
+}

@@ -63,6 +63,15 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			templates.POST("/:id", controllers.AddOption)
 			templates.PUT("/:id", controllers.UpdateTemplate)
 			templates.PUT("/option/:id", controllers.UpdateOption)
+			templates.DELETE("/:id", controllers.DeleteTemplate)
+		}
+		sessions := main.Group("sessions")
+		{
+			sessions.GET("/", controllers.ShowSessions)
+			sessions.GET("/:id", controllers.ShowSession)
+			sessions.POST("/", controllers.CreateSession)
+			sessions.PUT("/:id", controllers.UpdateSession)
+			sessions.DELETE("/:id", controllers.DeleteSession)
 		}
 	}
 	return router
