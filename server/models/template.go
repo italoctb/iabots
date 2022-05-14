@@ -32,7 +32,7 @@ type Option struct {
 func (t Template) GetMessage() string {
 	msg := t.TemplateMessage + "\n"
 	for index, Option := range t.Options {
-		msg += string(strconv.Itoa(index)) + ". " + Option.Label + "\n"
+		msg += string(strconv.Itoa(index+1)) + ". " + Option.Label + "\n"
 	}
 	return msg
 }

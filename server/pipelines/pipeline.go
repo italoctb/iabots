@@ -44,7 +44,7 @@ func ChangeStateBasedOnSelectedOption(Message *models.Message) error {
 		return nil
 	}
 	newSession := models.Session{
-		State: Template.Options[Option].Goto,
+		State: Template.Options[Option-1].Goto,
 	}
 	db.Create(&newSession)
 	return err
