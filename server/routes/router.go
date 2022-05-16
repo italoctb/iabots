@@ -4,7 +4,6 @@ import (
 	"app/server/controllers"
 	"app/server/database"
 	"app/server/models"
-	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +11,7 @@ import (
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", os.Getenv("FRONTEND_HOST"))
+		c.Header("Access-Control-Allow-Origin", "https://whatsapp-api-pv.vercel.app")
 		c.Header("Access-Control-Allow-Headers", "*")
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
 
