@@ -5,6 +5,7 @@ setup:
 build:
   docker:
     web: Dockerfile
+    client: infra/dockers/react.dev.Dockerfile
 
   config:
     NODE_ENV: production
