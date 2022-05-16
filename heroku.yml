@@ -4,8 +4,9 @@ setup:
       as: DATABASE
 build:
   docker:
-    web: Dockerfile
-    client: ./client/Dockerfile
+    web: ./infra/dockers/go.Dockerfile
+    client:  ./infra/dockers/react.dev.Dockerfile
+
   config:
     NODE_ENV: production
 
