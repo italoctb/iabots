@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Center, MantineProvider } from "@mantine/core";
 import Chat from './components/Chat';
 import Template from './components/Template';
-import { getMessages } from './requests';
+import { getMessages } from './requests' ;
 
 
 
