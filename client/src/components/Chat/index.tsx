@@ -3,12 +3,12 @@ import ChatInput from "../ChatInput";
 import useSWR from "swr";
 import { Container, Loader } from "@mantine/core";
 import Message from "../Message";
-import {TMessage} from '../../requests'
+import {BASE_URL, TMessage} from '../../requests'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const useMessages = () => {
   const { data, error, mutate } = useSWR<[TMessage]>(
-    "http://127.0.0.1:5000/api/v1/messages/",
+    `${BASE_URL}/api/v1/messages/`,
     fetcher
   );
   return { data, error, mutate };

@@ -1,12 +1,12 @@
 import React from "react";
 import useSWR from "swr";
-import { TTemplate } from "../../requests";
+import { BASE_URL, TTemplate } from "../../requests";
 import TemplateOption from "../TemplateOption";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const useTemplates = () => {
   const { data, error, mutate } = useSWR<[TTemplate]>(
-    "http://127.0.0.1:5000/api/v1/templates/",
+    `${BASE_URL}/api/v1/templates/`,
     fetcher
   );
   return { data, error, mutate };

@@ -18,16 +18,23 @@ export type TOption = {
   goto: string
 }
 
+export const BASE_URL = process.env.REACT_BASE_URL;
+
 export const sendMessage = async (message: string) => {
-   await axios.post("http://localhost:5000/api/v1/messages/", {
+   await axios.post(`${BASE_URL}/api/v1/messages/`, {
     message,
   });
-  await axios.get("http://localhost:5000/api/v1/messages/process");
+  await axios.get(`${BASE_URL}/api/v1/messages/process`);
 };
 
 
 export const updateOption = async (option:TOption) => {
-  await axios.post("http://localhost:5000/api/v1/templates/option/"+option.id, {
+  await axios.post(`${BASE_URL}/api/v1/templates/option/${option.id}`, {
     goto: option.goto
   });
 };
+
+export const getMessages = async () =>{
+  const response = await axios.get(`${BASE_URL}/api/v1/messages/`);
+  return response.data
+}

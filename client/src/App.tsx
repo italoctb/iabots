@@ -4,10 +4,13 @@ import axios from 'axios';
 import { Center, MantineProvider } from "@mantine/core";
 import Chat from './components/Chat';
 import Template from './components/Template';
+import { getMessages } from './requests';
+
+
 
 function App() {
   useEffect(() => {
-  axios.get("http://localhost:5000/api/v1/messages/").then((data) => {
+  getMessages().then((data) => {
     console.log(data);
   });
 }, []);
