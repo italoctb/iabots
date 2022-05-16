@@ -18,7 +18,7 @@ export type TOption = {
   goto: string
 }
 
-export const BASE_URL = process.env.REACT_BASE_URL;
+export const BASE_URL = "https://whatsapp-api-pv.herokuapp.com";
 
 export const sendMessage = async (message: string) => {
    await axios.post(`${BASE_URL}/api/v1/messages/`, {
