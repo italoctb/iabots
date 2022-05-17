@@ -45,13 +45,13 @@ func ReceiveApi(c *gin.Context) {
 		})
 		return
 	}
-	/*err = db.Create(&Message).Error
+	err = db.Create(&Message).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": "cannot create Message: " + err.Error(),
 		})
-	}*/
+	}
 	var MessageResponse models.Message
 
 	MessageResponse.WidReceiver = Message.WidSender
