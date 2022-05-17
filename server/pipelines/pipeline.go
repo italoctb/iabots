@@ -4,6 +4,7 @@ import (
 	"app/server/adapters"
 	"app/server/database"
 	"app/server/models"
+	"fmt"
 	"strconv"
 )
 
@@ -15,6 +16,10 @@ func TemplateResponse(Message *models.Message) error {
 		return nil
 	}
 	Template, err := Session.GetActualTemplate(db)
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
 	newMessage := models.Message{Message: Template.GetMessage(),
 		WidSender:   "5511989070670",
 		WidReceiver: Message.WidSender,

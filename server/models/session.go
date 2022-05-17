@@ -21,6 +21,6 @@ func (s Session) GetActualTemplate(db *gorm.DB) (Template, error) {
 	if err != nil {
 		return Template{}, err
 	}
-	db.Where("ID=?", id).Preload("Options").First(&t)
+	err = db.Where("ID=?", id).Preload("Options").First(&t).Error
 	return t, err
 }
