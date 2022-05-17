@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"app/server/bots"
 	"app/server/database"
 	"app/server/models"
 	"app/server/pipelines"
@@ -128,7 +129,8 @@ func ProcessMessages(c *gin.Context) {
 		return
 	}
 	for _, Message := range Messages {
-		pipelines.ChainProcess(&Message)
+		var bot bots.ExampleBot
+		pipelines.ChainProcess(bot, &Message)
 	}
 
 	c.JSON(200, Messages)
