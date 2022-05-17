@@ -22,7 +22,7 @@ func (l ExampleBot) SendMessage(message string) error {
 	newMessage := models.Message{
 		Message:     message,
 		ProcessedAt: true}
-	db.Create(newMessage)
+	db.Create(&newMessage)
 	return nil
 }
 
@@ -39,25 +39,30 @@ func (l ExampleBot) GetState() string {
 	var Session models.Session
 	db := database.GetDatabase()
 	db.Last(&Session)
+	if Session.State == "" {
+		l.SetState(l.GetFirstTemplate())
+		return l.GetFirstTemplate()
+	}
 	return Session.State
 }
 
 func (l ExampleBot) GetFirstTemplate() string {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.First(&Template)
+	db.Preload("Options").First(&Template)
 	return strconv.FormatUint(uint64(Template.ID), 10)
 }
 
 func (l ExampleBot) GetOptions() []int {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.Preload("Option").Find(&Template, "ID=?", l.GetState())
+	db.Preload("Options").Find(&Template, "ID=?", l.GetState())
 
 	list := []int{}
 	pivot := 0
 	for _, o := range Template.Options {
 		list = append(list, pivot)
+		pivot += 1
 		fmt.Println(o)
 	}
 	return list
@@ -66,13 +71,13 @@ func (l ExampleBot) GetOptions() []int {
 func (l ExampleBot) GetLink(position int) string {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.Preload("Option").Find(&Template, "ID=?", l.GetState())
-	return Template.Options[position].Goto
+	db.Preload("Options").Find(&Template, "ID=?", l.GetState())
+	return Template.Options[position-1].Goto
 }
 
 func (l ExampleBot) TemplateMessage(state string) string {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.Find(&Template, "ID=?", state)
+	db.Preload("Options").Find(&Template, "ID=?", state)
 	return Template.GetMessage()
 }

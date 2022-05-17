@@ -21,7 +21,7 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, Message *models.Message) error
 	}
 	options := b.GetOptions()
 
-	if Option > len(options) || Option < 0 {
+	if Option > len(options) || Option < 1 {
 		b.SendMessage(b.FallbackMessage())
 		return nil
 	}
