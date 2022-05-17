@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"app/server/adapters"
 	"app/server/database"
 	"app/server/models"
 	"app/server/pipelines"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -142,4 +144,38 @@ func CheckStep(Message *models.Message) int {
 		return 0
 	}
 	return LastMessage.Step
+}
+
+func PositusWebhook(c *gin.Context) {
+	db := database.GetDatabase()
+
+	var PositusResponse adapters.ResposeType
+
+	err := c.ShouldBindJSON(&PositusResponse)
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot bind JSON: " + err.Error(),
+		})
+		return
+	}
+
+	for _, PositusMessage := range PositusResponse.Messages {
+		if PositusMessage.Type == "text" {
+			Message := models.Message{
+				WidSender: PositusMessage.From,
+				Message:   PositusMessage.Text.Body,
+			}
+			db.Create(&Message)
+			pipelines.ChainProcess(&Message)
+			fmt.Println(Message)
+		}
+	}
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot create Message: " + err.Error(),
+		})
+	}
+	c.JSON(200, PositusResponse)
 }

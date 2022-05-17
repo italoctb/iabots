@@ -53,6 +53,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			messages.POST("/", controllers.CreateMessage)
 			messages.PUT("/", controllers.UpdateMessage)
 			messages.DELETE("/:id", controllers.DeleteMessages)
+			messages.POST("/positus", controllers.PositusWebhook)
 		}
 		templates := main.Group("templates")
 		{

@@ -55,3 +55,38 @@ func (p Positus) SendMessage(widReceiver string, message string) error {
 	fmt.Println(string(body))
 	return err
 }
+
+// {
+//   "contacts": [ {
+//     "profile": {
+//         "name": "Kerry Fisher"
+//     },
+//     "wa_id": "16315551234"
+//   } ],
+//   "messages":[{
+//     "from": "16315551234",
+//     "id": "ABGGFlA5FpafAgo6tHcNmNjXmuSf",
+//     "timestamp": "1518694235",
+//     "text": {
+//       "body": "Hello this is an answer"
+//     },
+//     "type": "text"
+//   }]
+
+type ResponseText struct {
+	Body string `json:"body"`
+}
+type ResponseMessage struct {
+	From      string       `json:"from"`
+	ID        string       `json:"id"`
+	Timestamp string       `json:"timestamp"`
+	Text      ResponseText `json:"text"`
+	Type      string       `json:"type"`
+}
+type ResponseContact struct {
+	WidSender string `json:"wa_id"`
+}
+type ResposeType struct {
+	Contacts []ResponseContact `json:"contacts"`
+	Messages []ResponseMessage `json:"messages"`
+}
