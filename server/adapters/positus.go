@@ -1,16 +1,21 @@
 package adapters
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 )
 
+type Text struct {
+	Body string `json:"body"`
+}
 type Positus struct {
-	Url   string
-	Token string
+	To   string `json:"to"`
+	Type string `json:"type"`
+	Text Text   `json:"text"`
 }
 
 func (p Positus) GetUrl() string {
@@ -21,27 +26,16 @@ func (p Positus) GetToken() string {
 	return os.Getenv("POSITUS_TOKEN")
 }
 
-func CreatePositusObject(url string, token string) Positus {
-	var positusObject Positus
-	positusObject.Url = url
-	positusObject.Token = token
-	return positusObject
-}
-
 func (p Positus) SendMessage(widReceiver string, message string) error {
-	payload := strings.NewReader("{\n" +
-		"	\"to\": \"" + widReceiver + "\",\n" +
-		"	\"type\": \"text\",\n" +
-		"	\"text\": {\n" +
-		"		\"body\": \"" + string([]rune(message)) + "\"\n" +
-		"	}" +
-		"}")
-	fmt.Println(payload)
+	Message := &Positus{To: widReceiver, Type: "text", Text: Text{Body: message}}
+	b, _ := json.Marshal(Message)
+
+	fmt.Println(b)
 
 	url := p.GetUrl()
 
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", url, payload)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 
 	if err != nil {
 		fmt.Println(err)
