@@ -4,7 +4,6 @@ import (
 	"app/server/adapters"
 	"app/server/database"
 	"app/server/models"
-	"fmt"
 	"strconv"
 )
 
@@ -17,12 +16,12 @@ func TemplateResponse(Message *models.Message) error {
 	}
 	Template, err := Session.GetActualTemplate(db)
 	newMessage := models.Message{Message: Template.GetMessage(),
+		WidSender:   "5511989070670",
+		WidReceiver: Message.WidSender,
 		ProcessedAt: true}
 	db.Create(&newMessage)
 	Adapter := adapters.Positus{}
-	msgstr := []rune(newMessage.Message)
-	fmt.Print(msgstr)
-	Adapter.SendMessage("+558597112838", string(msgstr))
+	Adapter.SendMessage(newMessage.WidReceiver, newMessage.Message)
 	return err
 }
 
