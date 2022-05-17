@@ -78,3 +78,21 @@ func ReceiveApi(c *gin.Context) {
 	}
 	c.JSON(200, MessageResponse)
 }
+
+func TesteHeroku(c *gin.Context) {
+	db := database.GetDatabase()
+
+	var Messages []models.Message
+
+	err := db.Order("id desc").Find(&Messages).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot list Messages: " + err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(200, Messages)
+}
