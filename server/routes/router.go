@@ -72,15 +72,15 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			sessions.PUT("/:id", controllers.UpdateSession)
 			sessions.DELETE("/:id", controllers.DeleteSession)
 		}
-		whatsapp := main.Group("whatsapp")
+		/*whatsapp := main.Group("whatsapp")
 		{
 			whatsapp.POST("/", controllers.SendMessageApi)
 			whatsapp.POST("/receive", controllers.ReceiveApi)
 			whatsapp.GET("/testeheroku", controllers.TesteHeroku)
 			/*whatsapp.GET("/", controllers.ShowSessions)
 			whatsapp.GET("/:id", controllers.ShowSession)
-			whatsapp.DELETE("/:id", controllers.DeleteSession)*/
-		}
+			whatsapp.DELETE("/:id", controllers.DeleteSession)
+		}*/
 	}
 	return router
 }

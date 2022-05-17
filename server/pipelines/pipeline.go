@@ -1,8 +1,10 @@
 package pipelines
 
 import (
+	"app/server/adapters"
 	"app/server/database"
 	"app/server/models"
+	"fmt"
 	"strconv"
 )
 
@@ -17,6 +19,10 @@ func TemplateResponse(Message *models.Message) error {
 	newMessage := models.Message{Message: Template.GetMessage(),
 		ProcessedAt: true}
 	db.Create(&newMessage)
+	Adapter := adapters.Positus{}
+	msgstr := []rune(newMessage.Message)
+	fmt.Print(msgstr)
+	Adapter.SendMessage("+558597112838", string(msgstr))
 	return err
 }
 
