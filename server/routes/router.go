@@ -76,7 +76,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		{
 			whatsapp.POST("/", controllers.SendMessageApi)
 			whatsapp.POST("/receive", controllers.ReceiveApi)
-			whatsapp.POST("/testeheroku", controllers.TesteHeroku)
+			whatsapp.GET("/testeheroku", controllers.TesteHeroku)
 			/*whatsapp.GET("/", controllers.ShowSessions)
 			whatsapp.GET("/:id", controllers.ShowSession)
 			whatsapp.DELETE("/:id", controllers.DeleteSession)*/
