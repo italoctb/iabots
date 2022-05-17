@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Center, MantineProvider } from "@mantine/core";
 import Chat from './components/Chat';
 import Template from './components/Template';
-import { getMessages } from './requests' ;
+import { BASE_URL, getMessages } from './requests' ;
 
 
 
@@ -24,6 +24,7 @@ function App() {
       <Center >
         <Chat />
         <Template />
+        {BASE_URL}
       </Center>
     </MantineProvider>
   );

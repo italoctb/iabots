@@ -1,79 +1,48 @@
 package pipelines
 
 import (
-	"app/server/adapters"
+	"app/server/bots"
 	"app/server/database"
 	"app/server/models"
-	"fmt"
 	"strconv"
 )
 
-func TemplateResponse(Message *models.Message) error {
-	var Session models.Session
-	db := database.GetDatabase()
-	db.Last(&Session)
-	if Session.State == "" {
-		return nil
-	}
-	Template, err := Session.GetActualTemplate(db)
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
-	newMessage := models.Message{Message: Template.GetMessage(),
-		WidSender:   "5511989070670",
-		WidReceiver: Message.WidSender,
-		ProcessedAt: true}
-	db.Create(&newMessage)
-	Adapter := adapters.Positus{}
-	Adapter.SendMessage(newMessage.WidReceiver, newMessage.Message)
+func TemplateResponse(b bots.Bot, Message *models.Message) error {
+
+	state := b.GetState()
+	TemplateMessage := b.TemplateMessage(state)
+	err := b.SendMessage(TemplateMessage, Message.WidSender)
 	return err
 }
 
-func ChangeStateBasedOnSelectedOption(Message *models.Message) error {
+func ChangeStateBasedOnSelectedOption(b bots.Bot, Message *models.Message) error {
 	Option, err := strconv.Atoi(Message.Message)
 	if err != nil {
 		return err
 	}
-	var Session models.Session
-	db := database.GetDatabase()
-	db.Last(&Session)
-	Template, err := Session.GetActualTemplate(db)
-	if Option > len(Template.Options) || Option < 0 {
-		newMessage := models.Message{
-			Message:     "Opção não existe",
-			ProcessedAt: true}
-		db.Create(&newMessage)
+	options := b.GetOptions()
+
+	if Option > len(options) || Option < 1 {
+		b.SendMessage(b.FallbackMessage(), Message.WidReceiver)
 		return nil
 	}
-	if Template.Options[Option].Goto == "" {
-		newMessage := models.Message{
-			Message:     "Opção não está configurada",
-			ProcessedAt: true}
-		db.Create(&newMessage)
-		return nil
-	}
-	newSession := models.Session{
-		State: Template.Options[Option-1].Goto,
-	}
-	db.Create(&newSession)
+
+	b.SetState(b.GetLink(Option))
 	return err
 }
 
-func ResetState(Message *models.Message) error {
-	db := database.GetDatabase()
+func ResetState(b bots.Bot, Message *models.Message) error {
+
 	if Message.Message == "reset" {
-		newSession := models.Session{
-			State: "1"}
-		db.Create(&newSession)
+		b.SetState(b.GetFirstTemplate())
 	}
 	return nil
 }
 
-func ChainProcess(Message *models.Message) error {
-	ResetState(Message)
-	ChangeStateBasedOnSelectedOption(Message)
-	TemplateResponse(Message)
+func ChainProcess(b bots.Bot, Message *models.Message) error {
+	ResetState(b, Message)
+	ChangeStateBasedOnSelectedOption(b, Message)
+	TemplateResponse(b, Message)
 	Message.ProcessedAt = true
 	db := database.GetDatabase()
 	db.Save(&Message)

@@ -28,5 +28,4 @@ func ServerSideHandler(router *gin.Engine) *gin.Engine {
 	router.GET("/messages", messages)
 	router.GET("/", index)
 	return router
-
 }
