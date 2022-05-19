@@ -21,8 +21,10 @@ Run all with this command:
 ```bash
   docker-compose up -d --build
 ```
-
+aii
 Server: http://localhost:5000/api/v1/messages
 Client: http://localhost:3000
+KeyCloak: http://localhost:8080
+
 
 For server development, the container is using hotreload, so just save the file you are changing and be happy. The react container does not have this feature yet.

@@ -2,8 +2,13 @@ package routes
 
 import (
 	"app/server/controllers"
+	"context"
+	"log"
+	"net/http"
 
+	oidc "github.com/coreos/go-oidc"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/oauth2"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -21,8 +26,57 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-func ConfigRoutes(router *gin.Engine) *gin.Engine {
+var (
+	clientID     = "app"
+	clientSecret = ""
+)
 
+func ConfigAuthRoutes(router *gin.Engine) {
+	ctx := context.Background()
+	provider, err := oidc.NewProvider(ctx, "http://localhost:8080/auth/realms/myrealm")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	config := oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		Endpoint:     provider.Endpoint(),
+		RedirectURL:  "http://localhost:5000/auth/callback",
+		Scopes:       []string{oidc.ScopeOpenID, "profile", "email", "roles"},
+	}
+
+	state := "exemplo"
+
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, config.AuthCodeURL(state))
+	})
+
+	router.GET("/auth/callback", func(c *gin.Context) {
+		if c.Request.URL.Query().Get("state") != state {
+			return
+		}
+
+		oauth2token, err := config.Exchange(ctx, c.Request.URL.Query().Get("code"))
+		if err != nil {
+			return
+		}
+
+		idToken, ok := oauth2token.Extra("id_token").(string)
+		if !ok {
+			return
+		}
+		c.JSON(200, struct {
+			OAuth2Token *oauth2.Token
+			IDToken     string
+		}{
+			oauth2token, idToken,
+		})
+	})
+}
+
+func ConfigRoutes(router *gin.Engine) *gin.Engine {
+	ConfigAuthRoutes(router)
 	router.Use(CORSMiddleware())
 	main := router.Group("api/v1")
 	{
