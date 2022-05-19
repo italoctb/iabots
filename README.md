@@ -21,7 +21,6 @@ Run all with this command:
 ```bash
   docker-compose up -d --build
 ```
-aii
 Server: http://localhost:5000/api/v1/messages
 Client: http://localhost:3000
 KeyCloak: http://localhost:8080
