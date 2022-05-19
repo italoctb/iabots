@@ -26,6 +26,5 @@ func messages(ctx *gin.Context) {
 func ServerSideHandler(router *gin.Engine) *gin.Engine {
 	router.LoadHTMLGlob("./server/ssr/tmpl/**/*.html")
 	router.GET("/messages", messages)
-	router.GET("/", index)
 	return router
 }

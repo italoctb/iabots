@@ -28,6 +28,7 @@ services:
       - .env
     depends_on:
       - db
+      - keycloak
     networks:
       - mynet
     ports:
@@ -51,9 +52,20 @@ services:
     networks:
       - mynet
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:18.0.0
+    command: "start-dev"
+    container_name: whatsapp-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - 8080:8080
+    networks:
+      - mynet
+
 volumes:
   webapi-mvc:
-
 networks:
   mynet:
     driver: bridge
