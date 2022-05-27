@@ -41,9 +41,11 @@ func ResetState(b bots.Bot, Message *models.Message) error {
 
 func ChainProcess(b bots.Bot, Message *models.Message) error {
 	ResetState(b, Message)
+	currentTemplate := b.GetState()
 	ChangeStateBasedOnSelectedOption(b, Message)
 	TemplateResponse(b, Message)
 	Message.ProcessedAt = true
+	Message.FromTemplate = currentTemplate
 	db := database.GetDatabase()
 	db.Save(&Message)
 	return nil

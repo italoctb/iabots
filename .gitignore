@@ -4,3 +4,4 @@ build/
 .env
 client/node_modules
 tmp/
+vendor/
