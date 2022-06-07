@@ -119,7 +119,7 @@ func DeleteMessages(c *gin.Context) {
 
 func DeleteAllMessages(c *gin.Context) {
 	db := database.GetDatabase()
-	err := db.Delete(&models.Message{}).Error
+	err := db.Where("1 = 1").Delete(&models.Message{}).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot find the ID: " + err.Error()})

@@ -158,7 +158,7 @@ func DeleteTemplate(c *gin.Context) {
 func DeleteAllTemplates(c *gin.Context) {
 
 	db := database.GetDatabase()
-	err := db.Delete(&models.Template{}).Error
+	err := db.Where("1 = 1").Delete(&models.Template{}).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot Delete, show error: " + err.Error()})
@@ -171,7 +171,7 @@ func DeleteAllTemplates(c *gin.Context) {
 func DeleteAllOptions(c *gin.Context) {
 
 	db := database.GetDatabase()
-	err := db.Delete(&models.Option{}).Error
+	err := db.Where("1 = 1").Delete(&models.Option{}).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot Delete, show error: " + err.Error()})
