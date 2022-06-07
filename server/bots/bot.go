@@ -31,10 +31,11 @@ func (l ExampleBot) SendMessage(message string, sender string, receiver string) 
 	return err
 }
 
-func (l ExampleBot) SetState(link string) string {
+func (l ExampleBot) SetState(link string, wid string) string {
 	db := database.GetDatabase()
 	newSession := models.Session{
 		State: link,
+		Wid:   wid,
 	}
 	db.Create(&newSession)
 	return ""
@@ -42,10 +43,16 @@ func (l ExampleBot) SetState(link string) string {
 
 func (l ExampleBot) GetState() string {
 	var Session models.Session
+	var Client models.Client
 	db := database.GetDatabase()
 	db.Last(&Session)
+
+	//refactor here
+	db.First(&Client)
+	//refactor hre
+
 	if Session.State == "" {
-		l.SetState(l.GetFirstTemplate())
+		l.SetState(l.GetFirstTemplate(), Client.Wid)
 		return l.GetFirstTemplate()
 	}
 	return Session.State

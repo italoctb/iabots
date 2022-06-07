@@ -7,15 +7,15 @@ import (
 	"strconv"
 )
 
-func TemplateResponse(b bots.Bot, Message *models.Message) error {
+func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) error {
 
 	state := b.GetState()
 	TemplateMessage := b.TemplateMessage(state)
-	err := b.SendMessage(TemplateMessage, Message.WidSender)
+	err := b.SendMessage(TemplateMessage, c.Wid, Message.WidSender)
 	return err
 }
 
-func ChangeStateBasedOnSelectedOption(b bots.Bot, Message *models.Message) error {
+func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Client, Message *models.Message) error {
 	Option, err := strconv.Atoi(Message.Message)
 	if err != nil {
 		return err
@@ -23,26 +23,26 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, Message *models.Message) error
 	options := b.GetOptions()
 
 	if Option > len(options) || Option < 1 {
-		b.SendMessage(b.FallbackMessage(), Message.WidReceiver)
+		b.SendMessage(b.FallbackMessage(c.FallbackMessage), c.Wid, Message.WidReceiver)
 		return nil
 	}
 
-	b.SetState(b.GetLink(Option))
+	b.SetState(b.GetLink(Option), c.Wid)
 	return err
 }
 
-func ResetState(b bots.Bot, Message *models.Message) error {
+func ResetState(b bots.Bot, c models.Client, Message *models.Message) error {
 
 	if Message.Message == "reset" {
-		b.SetState(b.GetFirstTemplate())
+		b.SetState(b.GetFirstTemplate(), c.Wid)
 	}
 	return nil
 }
 
-func ChainProcess(b bots.Bot, Message *models.Message) error {
-	ResetState(b, Message)
-	ChangeStateBasedOnSelectedOption(b, Message)
-	TemplateResponse(b, Message)
+func ChainProcess(b bots.Bot, c models.Client, Message *models.Message) error {
+	ResetState(b, c, Message)
+	ChangeStateBasedOnSelectedOption(b, c, Message)
+	TemplateResponse(b, c, Message)
 	Message.ProcessedAt = true
 	db := database.GetDatabase()
 	db.Save(&Message)

@@ -1,13 +1,13 @@
 package bots
 
 type Bot interface {
-	FallbackMessage() string
+	FallbackMessage(message string) string
 	GetFirstTemplate() string
-	EndMessage() string
-	SendMessage(message string, receiver string) error
+	EndMessage(message string) string
+	SendMessage(message string, sender string, receiver string) error
 	GetOptions() []int
 	GetLink(int) string
 	TemplateMessage(state string) string
-	SetState(string) string
+	SetState(string, string) string
 	GetState() string
 }
