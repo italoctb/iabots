@@ -10,6 +10,7 @@ import (
 type Session struct {
 	ID        uint `json:"id" gorm:"primaryKey"`
 	State     string
+	Wid       string         `json:"wid"`
 	CreatedAt time.Time      `json:"created"`
 	UpdateAt  time.Time      `json:"updated"`
 	DeleteAt  gorm.DeletedAt `gorm:"index" json:"deleted"`
