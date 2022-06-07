@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5000",
+  "proxy": "https://whatsapp-api-pv.herokuapp.com",
   "dependencies": {
     "@mantine/core": "^4.2.4",
     "@mantine/hooks": "^4.2.4",
