@@ -10,6 +10,7 @@ import (
 type Template struct {
 	gorm.Model
 	ID              uint           `json:"id" gorm:"primaryKey"`
+	Wid             string         `json:"wid"`
 	TemplateMessage string         `json:"template_message"`
 	IsFirst         bool           `json:"is_first"`
 	Options         []Option       `json:"options" gorm:"ForeignKey:TemplateID"`
