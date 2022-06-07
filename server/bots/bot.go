@@ -11,17 +11,18 @@ import (
 type ExampleBot struct {
 }
 
-func (l ExampleBot) FallbackMessage() string {
-	return "Opção não existe"
+func (l ExampleBot) FallbackMessage(message string) string {
+	return message
 }
-func (l ExampleBot) EndMessage() string {
-	return "Chegamos ao fim"
+func (l ExampleBot) EndMessage(message string) string {
+	return message
 }
 
-func (l ExampleBot) SendMessage(message string, receiver string) error {
+func (l ExampleBot) SendMessage(message string, sender string, receiver string) error {
 	db := database.GetDatabase()
 	newMessage := models.Message{
 		Message:     message,
+		WidSender:   sender,
 		WidReceiver: receiver,
 		ProcessedAt: true}
 	db.Create(&newMessage)
