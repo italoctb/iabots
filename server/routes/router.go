@@ -34,6 +34,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			messages.POST("/", controllers.CreateMessage)
 			messages.PUT("/", controllers.UpdateMessage)
 			messages.DELETE("/:id", controllers.DeleteMessages)
+			messages.DELETE("/deleteall", controllers.DeleteAllMessages)
 			messages.POST("/positus", controllers.PositusWebhook)
 		}
 		templates := main.Group("templates")
@@ -45,6 +46,8 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			templates.PUT("/:id", controllers.UpdateTemplate)
 			templates.PUT("/option/:id", controllers.UpdateOption)
 			templates.DELETE("/:id", controllers.DeleteTemplate)
+			templates.DELETE("deleteall", controllers.DeleteAllTemplates)
+			templates.DELETE("/option/deleteall", controllers.DeleteAllOptions)
 		}
 		sessions := main.Group("sessions")
 		{
@@ -53,6 +56,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			sessions.POST("/", controllers.CreateSession)
 			sessions.PUT("/:id", controllers.UpdateSession)
 			sessions.DELETE("/:id", controllers.DeleteSession)
+			sessions.DELETE("/deleteall", controllers.DeleteAllSessions)
 		}
 		/*whatsapp := main.Group("whatsapp")
 		{

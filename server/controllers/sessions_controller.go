@@ -110,3 +110,24 @@ func DeleteSession(c *gin.Context) {
 
 	c.Status(204)
 }
+
+func DeleteAllSessions(c *gin.Context) {
+	id := c.Param("id")
+	newid, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "ID has to be a integer",
+		})
+		return
+	}
+
+	db := database.GetDatabase()
+	err = db.Delete(&models.Session{}, newid).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Cannot find the ID: " + err.Error()})
+		return
+	}
+
+	c.Status(204)
+}

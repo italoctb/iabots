@@ -117,10 +117,24 @@ func DeleteMessages(c *gin.Context) {
 	c.Status(204)
 }
 
+func DeleteAllMessages(c *gin.Context) {
+	db := database.GetDatabase()
+	err := db.Delete(&models.Message{}).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Cannot find the ID: " + err.Error()})
+		return
+	}
+
+	c.Status(204)
+}
+
 func ProcessMessages(c *gin.Context) {
 	db := database.GetDatabase()
 
 	var Messages []models.Message
+
+	var Client models.Client
 
 	err := db.Where("processed_at = ?", false).Find(&Messages).Error
 	if err != nil {
@@ -130,9 +144,20 @@ func ProcessMessages(c *gin.Context) {
 
 		return
 	}
+
+	err = db.First(&Client).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot retrieve Client: " + err.Error(),
+		})
+
+		return
+	}
+
 	for _, Message := range Messages {
 		var bot bots.ExampleBot
-		pipelines.ChainProcess(bot, &Message)
+		pipelines.ChainProcess(bot, Client, &Message)
 	}
 
 	c.JSON(200, Messages)
@@ -153,12 +178,24 @@ func PositusWebhook(c *gin.Context) {
 
 	var PositusResponse adapters.ResposeType
 
+	var Client models.Client
+
 	err := c.ShouldBindJSON(&PositusResponse)
 
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": "cannot bind JSON: " + err.Error(),
 		})
+		return
+	}
+
+	err = db.First(&Client).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot retrieve Client: " + err.Error(),
+		})
+
 		return
 	}
 
@@ -170,7 +207,7 @@ func PositusWebhook(c *gin.Context) {
 			}
 			db.Create(&Message)
 			Bot := bots.ExampleBot{}
-			pipelines.ChainProcess(Bot, &Message)
+			pipelines.ChainProcess(Bot, Client, &Message)
 			fmt.Println(Message)
 		}
 	}
