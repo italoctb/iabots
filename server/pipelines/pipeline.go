@@ -9,11 +9,11 @@ import (
 
 func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) error {
 	state := b.GetState()
-	TemplateMessage := b.TemplateMessage(state)
-	if strconv.FormatUint(uint64(c.RateTemplateID), 10) == state {
+	if state == "end" {
 		b.SetState(b.GetFirstTemplate(), c.Wid)
 		return nil
 	}
+	TemplateMessage := b.TemplateMessage(state)
 	err := b.SendMessage(TemplateMessage, c.Wid, Message.WidSender)
 	return err
 }
@@ -32,6 +32,7 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Client, Message *mode
 		if strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState() {
 			b.RateSession(Option)
 			b.SendMessage(c.EndMessage, c.Wid, Message.WidReceiver)
+			b.SetState("end", c.Wid)
 			return err
 		}
 	}
