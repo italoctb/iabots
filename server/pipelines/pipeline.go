@@ -8,9 +8,12 @@ import (
 )
 
 func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) error {
-
 	state := b.GetState()
 	TemplateMessage := b.TemplateMessage(state)
+	if strconv.FormatUint(uint64(c.RateTemplateID), 10) == state {
+		b.SetState(b.GetFirstTemplate(), c.Wid)
+		return nil
+	}
 	err := b.SendMessage(TemplateMessage, c.Wid, Message.WidSender)
 	return err
 }
@@ -22,13 +25,25 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Client, Message *mode
 	}
 	options := b.GetOptions()
 
-	if Option > len(options) || Option < 1 {
-		b.SendMessage(b.FallbackMessage(c.FallbackMessage), c.Wid, Message.WidReceiver)
+	if checkStateOptions(b, c, options, Option) {
+		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidReceiver)
 		return nil
+	} else {
+		if strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState() {
+			b.RateSession(Option)
+			b.SendMessage(c.EndMessage, c.Wid, Message.WidReceiver)
+			return err
+		}
 	}
-
 	b.SetState(b.GetLink(Option), c.Wid)
 	return err
+}
+
+func checkStateOptions(b bots.Bot, c models.Client, options []int, Option int) bool {
+	if len(options) == 0 {
+		return (strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState() && (Option < 1 || Option > 3))
+	}
+	return Option > len(options) || Option < 1
 }
 
 func ResetState(b bots.Bot, c models.Client, Message *models.Message) error {

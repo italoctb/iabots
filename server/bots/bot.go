@@ -11,13 +11,6 @@ import (
 type ExampleBot struct {
 }
 
-func (l ExampleBot) FallbackMessage(message string) string {
-	return message
-}
-func (l ExampleBot) EndMessage(message string) string {
-	return message
-}
-
 func (l ExampleBot) SendMessage(message string, sender string, receiver string) error {
 	db := database.GetDatabase()
 	newMessage := models.Message{
@@ -92,4 +85,12 @@ func (l ExampleBot) TemplateMessage(state string) string {
 	var Template models.Template
 	db.Preload("Options").Find(&Template, "ID=?", state)
 	return Template.GetMessage()
+}
+
+func (l ExampleBot) RateSession(rate int) {
+	var Session models.Session
+	db := database.GetDatabase()
+	db.Last(&Session)
+	Session.Rate = rate
+	db.Save(&Session)
 }

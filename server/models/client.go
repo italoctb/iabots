@@ -12,6 +12,7 @@ type Client struct {
 	Name            string         `json:"name"`
 	FallbackMessage string         `json:"fallback"`
 	EndMessage      string         `json:"endmessage"`
+	RateTemplateID  int            `json:"rateTemplateID"`
 	CreatedAt       time.Time      `json:"created"`
 	UpdateAt        time.Time      `json:"updated"`
 	DeleteAt        gorm.DeletedAt `gorm:"index" json:"deleted"`
