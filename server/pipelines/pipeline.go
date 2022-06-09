@@ -26,12 +26,12 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Client, Message *mode
 	options := b.GetOptions()
 
 	if checkStateOptions(b, c, options, Option) {
-		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidReceiver)
+		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
 		return nil
 	} else {
 		if strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState() {
 			b.RateSession(Option)
-			b.SendMessage(c.EndMessage, c.Wid, Message.WidReceiver)
+			b.SendMessage(c.EndMessage, c.Wid, Message.WidSender)
 			b.SetState("end", c.Wid)
 			return err
 		}
