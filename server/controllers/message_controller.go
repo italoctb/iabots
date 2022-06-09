@@ -191,8 +191,9 @@ func PositusWebhook(c *gin.Context) {
 	for _, PositusMessage := range PositusResponse.Messages {
 		if PositusMessage.Type == "text" {
 			Message := models.Message{
-				WidSender: PositusMessage.From,
-				Message:   PositusMessage.Text.Body,
+				WidSender:   PositusMessage.From,
+				WidReceiver: Client.Wid,
+				Message:     PositusMessage.Text.Body,
 			}
 			db.Create(&Message)
 			Bot := bots.ExampleBot{}
