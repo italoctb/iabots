@@ -3,10 +3,10 @@ package bots
 type Bot interface {
 	GetFirstTemplate() string
 	SendMessage(message string, sender string, receiver string) error
-	GetOptions() []int
-	GetLink(int) string
+	GetOptions(string, string) []int
+	GetLink(int, string, string) string
 	TemplateMessage(state string) string
-	SetState(string, string) string
-	GetState() string
-	RateSession(rate int)
+	SetState(string, string, string) string
+	GetState(string, string) string
+	RateSession(rate int, client string, user string)
 }

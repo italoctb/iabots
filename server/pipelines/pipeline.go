@@ -8,9 +8,10 @@ import (
 )
 
 func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) error {
-	state := b.GetState()
+	user := getUserFromMessage(c, *Message)
+	state := b.GetState(c.Wid, user)
 	if state == "end" {
-		b.SetState(b.GetFirstTemplate(), c.Wid)
+		b.SetState(b.GetFirstTemplate(), c.Wid, user)
 		return nil
 	}
 	TemplateMessage := b.TemplateMessage(state)
@@ -19,38 +20,48 @@ func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) erro
 }
 
 func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Client, Message *models.Message) error {
+	user := getUserFromMessage(c, *Message)
 	Option, err := strconv.Atoi(Message.Message)
 	if err != nil {
+		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
 		return err
 	}
-	options := b.GetOptions()
+	options := b.GetOptions(c.Wid, user)
 
-	if checkStateOptions(b, c, options, Option) {
+	if checkStateOptions(b, c, user, options, Option) {
 		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
 		return nil
 	} else {
-		if strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState() {
-			b.RateSession(Option)
+		if strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState(c.Wid, user) {
+			b.RateSession(Option, c.Wid, user)
 			b.SendMessage(c.EndMessage, c.Wid, Message.WidSender)
-			b.SetState("end", c.Wid)
+			b.SetState("end", c.Wid, user)
 			return err
 		}
 	}
-	b.SetState(b.GetLink(Option), c.Wid)
+	b.SetState(b.GetLink(Option, c.Wid, user), c.Wid, user)
 	return err
 }
 
-func checkStateOptions(b bots.Bot, c models.Client, options []int, Option int) bool {
+func getUserFromMessage(c models.Client, m models.Message) string {
+	if c.Wid == m.WidSender {
+		return m.WidReceiver
+	}
+	return m.WidSender
+}
+
+func checkStateOptions(b bots.Bot, c models.Client, user string, options []int, Option int) bool {
 	if len(options) == 0 {
-		return (strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState() && (Option < 1 || Option > 3))
+		return (strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState(c.Wid, user) && (Option < 1 || Option > 3))
 	}
 	return Option > len(options) || Option < 1
 }
 
 func ResetState(b bots.Bot, c models.Client, Message *models.Message) error {
-
+	user := getUserFromMessage(c, *Message)
+	b.GetState(c.Wid, user)
 	if Message.Message == "reset" {
-		b.SetState(b.GetFirstTemplate(), c.Wid)
+		b.SetState(b.GetFirstTemplate(), c.Wid, user)
 	}
 	return nil
 }
