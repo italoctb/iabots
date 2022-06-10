@@ -22,14 +22,15 @@ func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) erro
 func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Client, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	Option, err := strconv.Atoi(Message.Message)
-	if err != nil {
+	if err != nil && (b.GetState(c.Wid, user) != b.GetFirstTemplate()) {
 		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
 		return err
 	}
 	options := b.GetOptions(c.Wid, user)
-
 	if checkStateOptions(b, c, user, options, Option) {
-		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
+		if Option != 0 {
+			b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
+		}
 		return nil
 	} else {
 		if strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState(c.Wid, user) {
