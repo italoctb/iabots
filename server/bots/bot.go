@@ -38,7 +38,7 @@ func (l ExampleBot) SetState(link string, widClient string, widUser string) stri
 func (l ExampleBot) GetState(widClient string, widUser string) string {
 	var Session models.Session
 	db := database.GetDatabase()
-	db.Last(&Session).Where("widClient?", widClient, "widUser?", widUser)
+	db.Where("wid_client = ? AND wid_user = ?", widClient, widUser).Last(&Session)
 	fmt.Print("Sessão: " + Session.State)
 	if Session.State == "" {
 		l.SetState(l.GetFirstTemplate(), widClient, widUser)
@@ -86,7 +86,7 @@ func (l ExampleBot) TemplateMessage(state string) string {
 func (l ExampleBot) RateSession(rate int, widClient string, widUser string) {
 	var Session models.Session
 	db := database.GetDatabase()
-	db.Last(&Session).Where("widClient?", widClient, "widUser", widUser)
+	db.Where("wid_client = ? AND wid_user = ?", widClient, widUser).Last(&Session)
 	Session.Rate = rate
 	db.Save(&Session)
 }
