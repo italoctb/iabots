@@ -1,7 +1,7 @@
 package bots
 
 type Bot interface {
-	GetFirstTemplate() string
+	GetFirstTemplate(string) string
 	SendMessage(message string, sender string, receiver string) error
 	GetOptions(string, string) []int
 	GetLink(int, string, string) string

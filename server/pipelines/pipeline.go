@@ -12,7 +12,7 @@ func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) erro
 	user := getUserFromMessage(c, *Message)
 	state := b.GetState(c.Wid, user)
 	if state == "end" {
-		b.SetState(b.GetFirstTemplate(), c.Wid, user)
+		b.SetState(b.GetFirstTemplate(c.Wid), c.Wid, user)
 		return nil
 	}
 	TemplateMessage := b.TemplateMessage(state)
@@ -23,7 +23,7 @@ func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) erro
 func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Client, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	Option, err := strconv.Atoi(Message.Message)
-	if err != nil && (b.GetState(c.Wid, user) != b.GetFirstTemplate()) {
+	if err != nil && (b.GetState(c.Wid, user) != b.GetFirstTemplate(c.Wid)) {
 		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
 		return err
 	}
@@ -65,13 +65,13 @@ func ResetState(b bots.Bot, c models.Client, Message *models.Message) error {
 	db := database.GetDatabase()
 	db.Where("wid_client = ? AND wid_user = ?", c.Wid, user).Last(&Session)
 	if getConditionsToReset(Message.Message, Session.CreatedAt) {
-		b.SetState(b.GetFirstTemplate(), c.Wid, user)
+		b.SetState(b.GetFirstTemplate(c.Wid), c.Wid, user)
 	}
 	return nil
 }
 
 func getConditionsToReset(message string, createdAt time.Time) bool {
-	delayTime := (-24) * time.Hour
+	delayTime := (-1) * time.Minute //(-24) * time.Hour || (-1) * time.Minute
 	currentTime := time.Now()
 	return currentTime.Add(delayTime).After(createdAt) || message == "reset"
 }

@@ -41,16 +41,16 @@ func (l ExampleBot) GetState(widClient string, widUser string) string {
 	db.Where("wid_client = ? AND wid_user = ?", widClient, widUser).Last(&Session)
 	fmt.Print("Sessão: " + Session.State)
 	if Session.State == "" {
-		l.SetState(l.GetFirstTemplate(), widClient, widUser)
-		return l.GetFirstTemplate()
+		l.SetState(l.GetFirstTemplate(widClient), widClient, widUser)
+		return l.GetFirstTemplate(widClient)
 	}
 	return Session.State
 }
 
-func (l ExampleBot) GetFirstTemplate() string {
+func (l ExampleBot) GetFirstTemplate(widClient string) string {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.Preload("Options").First(&Template)
+	db.Preload("Options").Find(&Template, "wid = ? AND is_first=true", widClient)
 	return strconv.FormatUint(uint64(Template.ID), 10)
 }
 
