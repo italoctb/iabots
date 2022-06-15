@@ -50,7 +50,7 @@ func (l ExampleBot) GetState(widClient string, widUser string) string {
 func (l ExampleBot) GetFirstTemplate(widClient string) string {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.Preload("Options").Find(&Template, "wid = ? AND is_first=true", widClient)
+	db.Preload("Options").Find(&Template, "wid = ? AND is_first=?", widClient, true)
 	return strconv.FormatUint(uint64(Template.ID), 10)
 }
 
