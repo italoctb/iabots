@@ -5,6 +5,7 @@ import (
 	"app/server/database"
 	"app/server/models"
 	"strconv"
+	"time"
 )
 
 func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) error {
@@ -60,11 +61,19 @@ func checkStateOptions(b bots.Bot, c models.Client, user string, options []int, 
 
 func ResetState(b bots.Bot, c models.Client, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
-	b.GetState(c.Wid, user)
-	if Message.Message == "reset" {
+	var Session models.Session
+	db := database.GetDatabase()
+	db.Where("wid_client = ? AND wid_user = ?", c.Wid, user).Last(&Session)
+	if getConditionsToReset(Message.Message, Session.CreatedAt) {
 		b.SetState(b.GetFirstTemplate(), c.Wid, user)
 	}
 	return nil
+}
+
+func getConditionsToReset(message string, createdAt time.Time) bool {
+	delayTime := (-24) * time.Hour
+	currentTime := time.Now()
+	return currentTime.Add(delayTime).After(createdAt) || message == "reset"
 }
 
 func ChainProcess(b bots.Bot, c models.Client, Message *models.Message) error {
