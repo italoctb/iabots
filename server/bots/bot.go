@@ -51,7 +51,7 @@ func (l ExampleBot) GetState(widCostumer string, widUser string) string {
 func (l ExampleBot) GetFirstTemplate(widCostumer string) string {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.Preload("Options").Find(&Template, "wid = ? AND is_first=?", widCostumer, true)
+	db.Preload("Options").Find(&Template, "wid_costumer = ? AND is_first=?", widCostumer, true)
 	return strconv.FormatUint(uint64(Template.ID), 10)
 }
 
@@ -87,7 +87,7 @@ func (l ExampleBot) TemplateMessage(state string) string {
 func (l ExampleBot) RateSession(rate int, widCostumer string, widUser string) {
 	var Session models.Session
 	db := database.GetDatabase()
-	db.Where("wid_client = ? AND wid_user = ?", widCostumer, widUser).Last(&Session)
+	db.Where("wid_costumer = ? AND wid_user = ?", widCostumer, widUser).Last(&Session)
 	Session.Rate = rate
 	db.Save(&Session)
 }
