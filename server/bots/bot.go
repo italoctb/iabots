@@ -38,9 +38,11 @@ func (l ExampleBot) SetState(link string, widClient string, widUser string) stri
 func (l ExampleBot) GetState(widClient string, widUser string) string {
 	var Session models.Session
 	db := database.GetDatabase()
+	fmt.Print("widclient: " + widClient)
 	db.Where("wid_client = ? AND wid_user = ?", widClient, widUser).Last(&Session)
 	fmt.Print("Sessão: " + Session.State)
 	if Session.State == "" || Session.State == "0" {
+		fmt.Print("Entrei aqui")
 		l.SetState(l.GetFirstTemplate(widClient), widClient, widUser)
 		return l.GetFirstTemplate(widClient)
 	}

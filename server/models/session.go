@@ -10,8 +10,8 @@ import (
 type Session struct {
 	ID        uint           `json:"id" gorm:"primaryKey"`
 	State     string         `json:"state"`
-	WidClient string         `json:"widClient"`
-	WidUser   string         `json:"widUser"`
+	WidClient string         `json:"wid_client"`
+	WidUser   string         `json:"wid_user"`
 	Rate      int            `json:"rate"`
 	CreatedAt time.Time      `json:"created"`
 	UpdateAt  time.Time      `json:"updated"`
