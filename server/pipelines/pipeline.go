@@ -63,7 +63,7 @@ func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	var Session models.Session
 	db := database.GetDatabase()
-	db.Where("wid_Costumer = ? AND wid_user = ?", c.Wid, user).Last(&Session)
+	db.Where("wid_costumer = ? AND wid_user = ?", c.Wid, user).Last(&Session)
 	if getConditionsToReset(Message.Message, Session.CreatedAt) {
 		b.SetState(b.GetFirstTemplate(c.Wid), c.Wid, user)
 	}
