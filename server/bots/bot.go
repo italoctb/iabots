@@ -40,7 +40,7 @@ func (l ExampleBot) GetState(widClient string, widUser string) string {
 	db := database.GetDatabase()
 	db.Where("wid_client = ? AND wid_user = ?", widClient, widUser).Last(&Session)
 	fmt.Print("Sessão: " + Session.State)
-	if Session.State == "" {
+	if Session.State == "" || Session.State == "0" {
 		l.SetState(l.GetFirstTemplate(widClient), widClient, widUser)
 		return l.GetFirstTemplate(widClient)
 	}
