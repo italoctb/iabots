@@ -58,14 +58,14 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			sessions.DELETE("/:id", controllers.DeleteSession)
 			sessions.DELETE("/deleteall", controllers.DeleteAllSessions)
 		}
-		client := main.Group("client")
+		Costumer := main.Group("costumer")
 		{
-			client.GET("/:id", controllers.ShowClient)
-			client.GET("/", controllers.ShowClients)
-			client.POST("/", controllers.CreateClient)
-			client.PUT("/:id", controllers.UpdateClient)
-			client.DELETE("/:id", controllers.DeleteClient)
-			client.DELETE("/deleteall", controllers.DeleteAllClients)
+			Costumer.GET("/:id", controllers.ShowCostumer)
+			Costumer.GET("/", controllers.ShowCostumers)
+			Costumer.POST("/", controllers.CreateCostumer)
+			Costumer.PUT("/:id", controllers.UpdateCostumer)
+			Costumer.DELETE("/:id", controllers.DeleteCostumer)
+			Costumer.DELETE("/deleteall", controllers.DeleteAllCostumers)
 		}
 		/*whatsapp := main.Group("whatsapp")
 		{

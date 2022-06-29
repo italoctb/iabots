@@ -8,9 +8,8 @@ import (
 )
 
 type Template struct {
-	gorm.Model
 	ID              uint           `json:"id" gorm:"primaryKey"`
-	Wid             string         `json:"wid"`
+	WidCostumer     string         `json:"wid_costumer"`
 	TemplateMessage string         `json:"template_message"`
 	IsFirst         bool           `json:"is_first"`
 	Options         []Option       `json:"options" gorm:"ForeignKey:TemplateID"`
@@ -20,7 +19,6 @@ type Template struct {
 }
 
 type Option struct {
-	gorm.Model
 	ID         uint           `json:"id" gorm:"primaryKey"`
 	Label      string         `json:"label"`
 	TemplateID uint           `json:"template_id"`

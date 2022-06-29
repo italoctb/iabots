@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ShowClient(c *gin.Context) {
+func ShowCostumer(c *gin.Context) {
 	id := c.Param("id")
 	newid, err := strconv.Atoi(id)
 	if err != nil {
@@ -19,7 +19,7 @@ func ShowClient(c *gin.Context) {
 
 	db := database.GetDatabase()
 
-	var Message models.Client
+	var Message models.Costumer
 	err = db.First(&Message, newid).Error
 
 	if err != nil {
@@ -33,12 +33,12 @@ func ShowClient(c *gin.Context) {
 	c.JSON(200, Message)
 }
 
-func CreateClient(c *gin.Context) {
+func CreateCostumer(c *gin.Context) {
 	db := database.GetDatabase()
 
-	var Client models.Client
+	var Costumer models.Costumer
 
-	err := c.ShouldBindJSON(&Client)
+	err := c.ShouldBindJSON(&Costumer)
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -46,22 +46,22 @@ func CreateClient(c *gin.Context) {
 		})
 		return
 	}
-	err = db.Create(&Client).Error
+	err = db.Create(&Costumer).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": "cannot create Message: " + err.Error(),
 		})
 	}
-	c.JSON(200, Client)
+	c.JSON(200, Costumer)
 }
 
-func ShowClients(c *gin.Context) {
+func ShowCostumers(c *gin.Context) {
 	db := database.GetDatabase()
 
-	var Clients []models.Client
+	var Costumers []models.Costumer
 
-	err := db.Order("id desc").Find(&Clients).Error
+	err := db.Order("id desc").Find(&Costumers).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -71,26 +71,26 @@ func ShowClients(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, Clients)
+	c.JSON(200, Costumers)
 }
 
-func UpdateClient(c *gin.Context) {
+func UpdateCostumer(c *gin.Context) {
 	db := database.GetDatabase()
-	var Client models.Client
-	err := c.ShouldBindJSON(&Client)
+	var Costumer models.Costumer
+	err := c.ShouldBindJSON(&Costumer)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot bind the JSON"})
 		return
 	}
-	err = db.Save(&Client).Error
+	err = db.Save(&Costumer).Error
 	if err != nil {
 		c.JSON(400, gin.H{"error": "cannot update Message: " + err.Error()})
 	}
 
-	c.JSON(200, Client)
+	c.JSON(200, Costumer)
 }
 
-func DeleteClient(c *gin.Context) {
+func DeleteCostumer(c *gin.Context) {
 	id := c.Param("id")
 	newid, err := strconv.Atoi(id)
 	if err != nil {
@@ -101,7 +101,7 @@ func DeleteClient(c *gin.Context) {
 	}
 
 	db := database.GetDatabase()
-	err = db.Delete(&models.Client{}, newid).Error
+	err = db.Delete(&models.Costumer{}, newid).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot find the ID: " + err.Error()})
@@ -111,9 +111,9 @@ func DeleteClient(c *gin.Context) {
 	c.Status(204)
 }
 
-func DeleteAllClients(c *gin.Context) {
+func DeleteAllCostumers(c *gin.Context) {
 	db := database.GetDatabase()
-	err := db.Where("1 = 1").Delete(&models.Client{}).Error
+	err := db.Where("1 = 1").Delete(&models.Costumer{}).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot find the ID: " + err.Error()})
