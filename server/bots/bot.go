@@ -24,40 +24,41 @@ func (l ExampleBot) SendMessage(message string, sender string, receiver string) 
 	return err
 }
 
-func (l ExampleBot) SetState(link string, widClient string, widUser string) string {
+func (l ExampleBot) SetState(link string, widCostumer string, widUser string) string {
 	db := database.GetDatabase()
 	newSession := models.Session{
-		State:     link,
-		WidClient: widClient,
-		WidUser:   widUser,
+		State:       link,
+		WidCostumer: widCostumer,
+		WidUser:     widUser,
 	}
 	db.Create(&newSession)
 	return ""
 }
 
-func (l ExampleBot) GetState(widClient string, widUser string) string {
+func (l ExampleBot) GetState(widCostumer string, widUser string) string {
 	var Session models.Session
 	db := database.GetDatabase()
-	db.Where("wid_client = ? AND wid_user = ?", widClient, widUser).Last(&Session)
+	fmt.Print("wid costumer = " + widCostumer)
+	db.Where("wid_costumer = ? AND wid_user = ?", widCostumer, widUser).Last(&Session)
 	fmt.Print("Sessão: " + Session.State)
-	if Session.State == "" {
-		l.SetState(l.GetFirstTemplate(widClient), widClient, widUser)
-		return l.GetFirstTemplate(widClient)
+	if Session.State == "" || Session.State == "0" {
+		l.SetState(l.GetFirstTemplate(widCostumer), widCostumer, widUser)
+		return l.GetFirstTemplate(widCostumer)
 	}
 	return Session.State
 }
 
-func (l ExampleBot) GetFirstTemplate(widClient string) string {
+func (l ExampleBot) GetFirstTemplate(widCostumer string) string {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.Preload("Options").Find(&Template, "wid = ? AND is_first=?", widClient, true)
+	db.Preload("Options").Find(&Template, "wid = ? AND is_first=?", widCostumer, true)
 	return strconv.FormatUint(uint64(Template.ID), 10)
 }
 
-func (l ExampleBot) GetOptions(widClient string, widUser string) []int {
+func (l ExampleBot) GetOptions(widCostumer string, widUser string) []int {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.Preload("Options").Find(&Template, "ID=?", l.GetState(widClient, widUser))
+	db.Preload("Options").Find(&Template, "ID=?", l.GetState(widCostumer, widUser))
 
 	list := []int{}
 	pivot := 0
@@ -69,10 +70,10 @@ func (l ExampleBot) GetOptions(widClient string, widUser string) []int {
 	return list
 }
 
-func (l ExampleBot) GetLink(position int, widClient string, widUser string) string {
+func (l ExampleBot) GetLink(position int, widCostumer string, widUser string) string {
 	db := database.GetDatabase()
 	var Template models.Template
-	db.Preload("Options").Find(&Template, "ID=?", l.GetState(widClient, widUser))
+	db.Preload("Options").Find(&Template, "ID=?", l.GetState(widCostumer, widUser))
 	return Template.Options[position-1].Goto
 }
 
@@ -83,10 +84,10 @@ func (l ExampleBot) TemplateMessage(state string) string {
 	return Template.GetMessage()
 }
 
-func (l ExampleBot) RateSession(rate int, widClient string, widUser string) {
+func (l ExampleBot) RateSession(rate int, widCostumer string, widUser string) {
 	var Session models.Session
 	db := database.GetDatabase()
-	db.Where("wid_client = ? AND wid_user = ?", widClient, widUser).Last(&Session)
+	db.Where("wid_client = ? AND wid_user = ?", widCostumer, widUser).Last(&Session)
 	Session.Rate = rate
 	db.Save(&Session)
 }

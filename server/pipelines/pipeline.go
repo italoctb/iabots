@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) error {
+func TemplateResponse(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	state := b.GetState(c.Wid, user)
 	if state == "end" {
@@ -20,7 +20,7 @@ func TemplateResponse(b bots.Bot, c models.Client, Message *models.Message) erro
 	return err
 }
 
-func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Client, Message *models.Message) error {
+func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	Option, err := strconv.Atoi(Message.Message)
 	if err != nil && (b.GetState(c.Wid, user) != b.GetFirstTemplate(c.Wid)) {
@@ -45,25 +45,25 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Client, Message *mode
 	return err
 }
 
-func getUserFromMessage(c models.Client, m models.Message) string {
+func getUserFromMessage(c models.Costumer, m models.Message) string {
 	if c.Wid == m.WidSender {
 		return m.WidReceiver
 	}
 	return m.WidSender
 }
 
-func checkStateOptions(b bots.Bot, c models.Client, user string, options []int, Option int) bool {
+func checkStateOptions(b bots.Bot, c models.Costumer, user string, options []int, Option int) bool {
 	if len(options) == 0 {
 		return (strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState(c.Wid, user) && (Option < 1 || Option > 3))
 	}
 	return Option > len(options) || Option < 1
 }
 
-func ResetState(b bots.Bot, c models.Client, Message *models.Message) error {
+func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	var Session models.Session
 	db := database.GetDatabase()
-	db.Where("wid_client = ? AND wid_user = ?", c.Wid, user).Last(&Session)
+	db.Where("wid_Costumer = ? AND wid_user = ?", c.Wid, user).Last(&Session)
 	if getConditionsToReset(Message.Message, Session.CreatedAt) {
 		b.SetState(b.GetFirstTemplate(c.Wid), c.Wid, user)
 	}
@@ -76,7 +76,7 @@ func getConditionsToReset(message string, createdAt time.Time) bool {
 	return currentTime.Add(delayTime).After(createdAt) || message == "reset"
 }
 
-func ChainProcess(b bots.Bot, c models.Client, Message *models.Message) error {
+func ChainProcess(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	ResetState(b, c, Message)
 	ChangeStateBasedOnSelectedOption(b, c, Message)
 	TemplateResponse(b, c, Message)

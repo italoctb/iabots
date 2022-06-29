@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Client struct {
+type Costumer struct {
 	ID              uint           `json:"id" gorm:"primaryKey"`
 	Wid             string         `json:"wid"`
 	Name            string         `json:"name"`
