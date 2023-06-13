@@ -67,6 +67,11 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			Costumer.DELETE("/:id", controllers.DeleteCostumer)
 			Costumer.DELETE("/deleteall", controllers.DeleteAllCostumers)
 		}
+
+		gpt := main.Group("gpt")
+		{
+			gpt.POST("/", controllers.GPTHandler)
+		}
 		/*whatsapp := main.Group("whatsapp")
 		{
 			whatsapp.POST("/", controllers.SendMessageApi)
