@@ -165,7 +165,7 @@ func ProcessMessages(c *gin.Context) {
 func PositusWebhook(c *gin.Context) {
 	db := database.GetDatabase()
 
-	var PositusResponse adapters.ResposeType
+	var PositusResponse adapters.ResponseType
 
 	var Costumer models.Costumer
 

@@ -86,7 +86,7 @@ type ResponseMessage struct {
 type ResponseContact struct {
 	WidSender string `json:"wa_id"`
 }
-type ResposeType struct {
+type ResponseType struct {
 	Contacts []ResponseContact `json:"contacts"`
 	Messages []ResponseMessage `json:"messages"`
 }

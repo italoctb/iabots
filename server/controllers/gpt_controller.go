@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func GPTHandler(c *gin.Context) {
-	var requestPayload adapters.ResposeType
+	var requestPayload adapters.ResponseType
 	err := c.ShouldBindJSON(&requestPayload)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -22,12 +23,11 @@ func GPTHandler(c *gin.Context) {
 	}
 
 	gptMessages := []Message{}
-	for _, message := range requestPayload.Messages {
-		gptMessages = append(gptMessages, Message{
-			Role:    "user",
-			Content: message.Text.Body,
-		})
-	}
+
+	gptMessages = append(gptMessages, Message{
+		Role:    "user",
+		Content: requestPayload.Messages[0].Text.Body,
+	})
 
 	gptPayload := GPTPayload{
 		Model:            "gpt-3.5-turbo",
@@ -64,23 +64,48 @@ func GPTHandler(c *gin.Context) {
 	token := os.Getenv("OPENIA_TOKEN")
 	req.Header.Add("Authorization", "Bearer "+token)
 	res, err := client.Do(req)
-	fmt.Printf("%+v", res)
+
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": "cannot send request: " + err.Error(),
 		})
 		return
 	}
-
 	defer res.Body.Close()
-	body, err := json.Marshal(res.Body)
+	bytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		c.JSON(400, gin.H{
-			"error": "cannot read response body: " + err.Error(),
+			"error": "cannot read response body to bytes: " + err.Error(),
 		})
 		return
 	}
-	c.JSON(200, string(body))
+	var aiResponse GPTResponse
+	err = json.Unmarshal([]byte(bytes), &aiResponse)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot unmarshall this object: " + err.Error(),
+		})
+		return
+	}
+	fmt.Println("xxxxxx")
+	fmt.Println(aiResponse.Choices[0].Message.Content)
+	fmt.Println("xxxxxx")
+
+	finalResponse := PositusGptMessage{
+		To:   "+5585997112838",
+		Type: "text",
+		Text: PositusText{Body: aiResponse.Choices[0].Message.Content},
+	}
+
+	c.JSON(200, finalResponse)
+	Positus := adapters.Positus{}
+	err = Positus.SendMessage("+5585997112838", aiResponse.Choices[0].Message.Content)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot unmarshall this object: " + err.Error(),
+		})
+		return
+	}
 
 }
 
@@ -100,5 +125,21 @@ type Message struct {
 }
 
 type GPTResponse struct {
-	Choices []Message `json:"choices"`
+	Choices []ChoicesGPT `json:"choices"`
+}
+
+type ChoicesGPT struct {
+	Index        int     `json:"index"`
+	Message      Message `json:"message"`
+	FinishReason string  `json:"finish_reason"`
+}
+
+type PositusGptMessage struct {
+	To   string      `json:"to"`
+	Type string      `json:"type"`
+	Text PositusText `json:"text"`
+}
+
+type PositusText struct {
+	Body string `json:"body"`
 }

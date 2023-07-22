@@ -31,12 +31,12 @@ services:
     networks:
       - mynet
     ports:
-      - 5000:5000
+      - 5001:5001
 
   client:
     build:
       context: .
-      dockerfile:  infra/dockers/react.dev.Dockerfile
+      dockerfile: infra/dockers/react.dev.Dockerfile
     command: "npm start"
     container_name: whatsapp-client
     environment:
@@ -53,6 +53,7 @@ services:
 
 volumes:
   webapi-mvc:
+
 
 networks:
   mynet:
