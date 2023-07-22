@@ -92,14 +92,14 @@ func GPTHandler(c *gin.Context) {
 	fmt.Println("xxxxxx")
 
 	finalResponse := PositusGptMessage{
-		To:   "+5585997112838",
+		To:   requestPayload.Contacts[0].WidSender,
 		Type: "text",
 		Text: PositusText{Body: aiResponse.Choices[0].Message.Content},
 	}
 
 	c.JSON(200, finalResponse)
 	Positus := adapters.Positus{}
-	err = Positus.SendMessage("+5585997112838", aiResponse.Choices[0].Message.Content)
+	err = Positus.SendMessage(requestPayload.Contacts[0].WidSender, aiResponse.Choices[0].Message.Content)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": "cannot unmarshall this object: " + err.Error(),
