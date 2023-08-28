@@ -30,7 +30,7 @@ func (p Positus) SendMessage(widReceiver string, message string) error {
 	Message := &Positus{To: widReceiver, Type: "text", Text: Text{Body: message}}
 	b, _ := json.Marshal(Message)
 
-	fmt.Println(b)
+	//fmt.Println(b)
 
 	url := p.GetUrl()
 
@@ -84,7 +84,7 @@ type ResponseMessage struct {
 	Type      string       `json:"type"`
 }
 type ResponseContact struct {
-	WidSender string `json:"wa_id"`
+	WidReceiver string `json:"wa_id"`
 }
 type ResponseType struct {
 	Contacts []ResponseContact `json:"contacts"`

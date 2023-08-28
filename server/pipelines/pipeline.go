@@ -4,13 +4,19 @@ import (
 	"app/server/bots"
 	"app/server/database"
 	"app/server/models"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
 
 func TemplateResponse(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
-	state := b.GetState(c.Wid, user)
+	state := b.GetStateTemplate(c.Wid, user)
 	if state == "end" {
 		b.SetState(b.GetFirstTemplate(c.Wid), c.Wid, user)
 		return nil
@@ -20,10 +26,77 @@ func TemplateResponse(b bots.Bot, c models.Costumer, Message *models.Message) er
 	return err
 }
 
+func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) error {
+
+	gptMessages := []Messagee{}
+
+	gptMessages = append(gptMessages, Messagee{
+		Role:    "user",
+		Content: Message.Message,
+	})
+
+	gptPayload := GPTPayload{
+		Model:            "gpt-3.5-turbo",
+		Messages:         gptMessages,
+		MaxTokens:        1500,
+		Temperature:      1,
+		TopP:             1,
+		FrequencyPenalty: 1,
+		PresencePenalty:  1,
+	}
+
+	fmt.Printf("%+v", gptPayload)
+	gptPayloadBody, err := json.Marshal(gptPayload)
+	if err != nil {
+
+		return err
+	}
+
+	fmt.Println(string(gptPayloadBody))
+
+	gptPayloadStream := bytes.NewBuffer(gptPayloadBody)
+	client := http.Client{}
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", gptPayloadStream)
+	if err != nil {
+
+		return err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	token := os.Getenv("OPENIA_TOKEN")
+	req.Header.Add("Authorization", "Bearer "+token)
+	res, err := client.Do(req)
+
+	if err != nil {
+
+		return err
+	}
+	defer res.Body.Close()
+	bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+
+		return err
+	}
+	var aiResponse GPTResponse
+	err = json.Unmarshal([]byte(bytes), &aiResponse)
+	if err != nil {
+
+		return err
+	}
+	fmt.Println("xxxxxx")
+	fmt.Println(aiResponse.Choices[0].Message.Content)
+	fmt.Println("xxxxxx")
+
+	finalResponse := aiResponse.Choices[0].Message.Content
+
+	err = b.SendMessage(finalResponse, c.Wid, Message.WidSender)
+	return err
+}
+
 func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	Option, err := strconv.Atoi(Message.Message)
-	if err != nil && (b.GetState(c.Wid, user) != b.GetFirstTemplate(c.Wid)) {
+	if err != nil && (b.GetStateTemplate(c.Wid, user) != b.GetFirstTemplate(c.Wid)) {
 		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
 		return err
 	}
@@ -34,7 +107,7 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Costumer, Message *mo
 		}
 		return nil
 	} else {
-		if strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState(c.Wid, user) {
+		if strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetStateTemplate(c.Wid, user) {
 			b.RateSession(Option, c.Wid, user)
 			b.SendMessage(c.EndMessage, c.Wid, Message.WidSender)
 			b.SetState("end", c.Wid, user)
@@ -43,6 +116,12 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Costumer, Message *mo
 	}
 	b.SetState(b.GetLink(Option, c.Wid, user), c.Wid, user)
 	return err
+}
+
+func ChangeStateBasedStatus(b bots.Bot, c models.Costumer, Message *models.Message) error {
+	user := getUserFromMessage(c, *Message)
+	b.SetState("ACTIVE", c.Wid, user)
+	return nil
 }
 
 func getUserFromMessage(c models.Costumer, m models.Message) string {
@@ -54,12 +133,12 @@ func getUserFromMessage(c models.Costumer, m models.Message) string {
 
 func checkStateOptions(b bots.Bot, c models.Costumer, user string, options []int, Option int) bool {
 	if len(options) == 0 {
-		return (strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetState(c.Wid, user) && (Option < 1 || Option > 3))
+		return (strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetStateTemplate(c.Wid, user) && (Option < 1 || Option > 3))
 	}
 	return Option > len(options) || Option < 1
 }
 
-func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) error {
+func ResetStateTemplate(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	var Session models.Session
 	db := database.GetDatabase()
@@ -70,18 +149,74 @@ func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	return nil
 }
 
-func getConditionsToReset(message string, createdAt time.Time) bool {
-	delayTime := (-1) * time.Minute //(-24) * time.Hour || (-1) * time.Minute
+func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) error {
+	user := getUserFromMessage(c, *Message)
+	session := b.GetSession(c.Wid, user)
+	if getConditionsToReset(Message.Message, session.UpdateAt) {
+		b.SetState("CLOSED", c.Wid, user)
+	}
+	return nil
+}
+
+func getConditionsToReset(message string, updatedAt time.Time) bool {
+	delayTime := (-5) * time.Minute //(-24) * time.Hour || (-1) * time.Minute
 	currentTime := time.Now()
-	return currentTime.Add(delayTime).After(createdAt) || message == "reset"
+	check := currentTime.Add(delayTime).After(updatedAt) || message == "reset"
+	return check
 }
 
 func ChainProcess(b bots.Bot, c models.Costumer, Message *models.Message) error {
-	ResetState(b, c, Message)
+	ResetStateTemplate(b, c, Message)
 	ChangeStateBasedOnSelectedOption(b, c, Message)
 	TemplateResponse(b, c, Message)
 	Message.ProcessedAt = true
 	db := database.GetDatabase()
 	db.Save(&Message)
 	return nil
+}
+
+func ChainProcessGPT(b bots.Bot, c models.Costumer, Message *models.Message) error {
+	ResetState(b, c, Message)
+	ChangeStateBasedStatus(b, c, Message)
+	user := getUserFromMessage(c, *Message)
+	Message.SessionID = b.GetSession(c.Wid, user).ID
+	db := database.GetDatabase()
+	db.Create(&Message)
+	GetGPTResponse(b, c, Message)
+	return nil
+}
+
+type Messagee struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+type GPTResponse struct {
+	Choices []ChoicesGPT `json:"choices"`
+}
+
+type ChoicesGPT struct {
+	Index        int      `json:"index"`
+	Message      Messagee `json:"message"`
+	FinishReason string   `json:"finish_reason"`
+}
+
+type PositusGptMessage struct {
+	To   string      `json:"to"`
+	Type string      `json:"type"`
+	Text PositusText `json:"text"`
+}
+
+type PositusText struct {
+	Body string `json:"body"`
+}
+
+type GPTPayload struct {
+	Model            string     `json:"model"`
+	Messages         []Messagee `json:"messages"`
+	MaxTokens        int        `json:"max_tokens"`
+	Temperature      int        `json:"temperature"`
+	TopP             int        `json:"top_p"`
+	FrequencyPenalty int        `json:"frequency_penalty"`
+	PresencePenalty  int        `json:"presence_penalty"`
 }

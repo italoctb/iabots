@@ -8,7 +8,7 @@ import (
 )
 
 type Session struct {
-	ID          uint           `json:"id" gorm:"primaryKey"`
+	ID          int            `json:"id" gorm:"primaryKey"`
 	State       string         `json:"state"`
 	WidCostumer string         `json:"wid_costumer"`
 	WidUser     string         `json:"wid_user"`

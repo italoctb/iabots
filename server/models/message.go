@@ -11,6 +11,7 @@ type Message struct {
 	WidSender   string         `json:"widSender"`
 	WidReceiver string         `json:"widReceiver"`
 	Message     string         `json:"message"`
+	SessionID   int            `json:"sessionId"`
 	ProcessedAt bool           `json:"processed"`
 	CreatedAt   time.Time      `json:"created"`
 	UpdateAt    time.Time      `json:"updated"`

@@ -1,6 +1,6 @@
 
 # Please keep up to date with the new-version of Golang docker for builder
-FROM golang:1.14.0-stretch
+FROM golang:1.20
 
 RUN apt update && apt upgrade -y && \
   apt install -y git \
