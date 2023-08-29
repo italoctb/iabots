@@ -26,14 +26,45 @@ func TemplateResponse(b bots.Bot, c models.Costumer, Message *models.Message) er
 	return err
 }
 
-func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) error {
-
-	gptMessages := []Messagee{}
-
-	gptMessages = append(gptMessages, Messagee{
-		Role:    "user",
-		Content: Message.Message,
+func GetRoleMessages(b bots.Bot, c models.Costumer, userNumber string) []RoleMessage {
+	db := database.GetDatabase()
+	var messages []models.Message
+	var roleMessages []RoleMessage
+	session := b.GetSession(c.Wid, userNumber)
+	fmt.Println("Adicionando contexto de sistema...")
+	roleMessages = append(roleMessages, RoleMessage{
+		Role:    "system",
+		Content: "Você se chama Delillah, uma assistente virtual GPT, muito educada, organizada, e proativa.",
 	})
+	roleMessages = append(roleMessages, RoleMessage{
+		Role:    "system",
+		Content: "A primeira interação com o usuário, voce se apresenta",
+	})
+	fmt.Println("Iniciando busca de mensagens da sessão...")
+	db.Where("session_id = ?", session.ID).Find(&messages)
+	for _, message := range messages {
+		if message.WidSender == c.Wid {
+
+			roleMessages = append(roleMessages, RoleMessage{
+				Role:    "assistant",
+				Content: message.Message,
+			})
+			fmt.Println("Assistant: " + message.Message)
+		} else if message.WidSender == userNumber {
+			roleMessages = append(roleMessages, RoleMessage{
+				Role:    "user",
+				Content: message.Message,
+			})
+			fmt.Println("user: " + message.Message)
+		}
+
+	}
+	return roleMessages
+}
+
+func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) error {
+	user := getUserFromMessage(c, *Message)
+	gptMessages := GetRoleMessages(b, c, user)
 
 	gptPayload := GPTPayload{
 		Model:            "gpt-3.5-turbo",
@@ -83,9 +114,11 @@ func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) erro
 
 		return err
 	}
-	fmt.Println("xxxxxx")
-	fmt.Println(aiResponse.Choices[0].Message.Content)
-	fmt.Println("xxxxxx")
+	for _, message := range aiResponse.Choices {
+		fmt.Println("xxxxxx")
+		fmt.Println(message.Message.Content)
+		fmt.Println("xxxxxx")
+	}
 
 	finalResponse := aiResponse.Choices[0].Message.Content
 
@@ -120,6 +153,11 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Costumer, Message *mo
 
 func ChangeStateBasedStatus(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
+
+	// if b.GetSession(c.Wid, user).State == "INITIAL" {
+	// 	b.SendMessage("Olá! Me chamo Delillah, sou sua assistente virtual GPT!", c.Wid, user)
+	// }
+
 	b.SetState("ACTIVE", c.Wid, user)
 	return nil
 }
@@ -153,13 +191,14 @@ func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	session := b.GetSession(c.Wid, user)
 	if getConditionsToReset(Message.Message, session.UpdateAt) {
+		b.SendMessage("_Sessão encerrada_", c.Wid, user)
 		b.SetState("CLOSED", c.Wid, user)
 	}
 	return nil
 }
 
 func getConditionsToReset(message string, updatedAt time.Time) bool {
-	delayTime := (-5) * time.Minute //(-24) * time.Hour || (-1) * time.Minute
+	delayTime := (-30) * time.Minute //(-24) * time.Hour || (-1) * time.Minute
 	currentTime := time.Now()
 	check := currentTime.Add(delayTime).After(updatedAt) || message == "reset"
 	return check
@@ -186,7 +225,7 @@ func ChainProcessGPT(b bots.Bot, c models.Costumer, Message *models.Message) err
 	return nil
 }
 
-type Messagee struct {
+type RoleMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
@@ -196,9 +235,9 @@ type GPTResponse struct {
 }
 
 type ChoicesGPT struct {
-	Index        int      `json:"index"`
-	Message      Messagee `json:"message"`
-	FinishReason string   `json:"finish_reason"`
+	Index        int         `json:"index"`
+	Message      RoleMessage `json:"message"`
+	FinishReason string      `json:"finish_reason"`
 }
 
 type PositusGptMessage struct {
@@ -212,11 +251,11 @@ type PositusText struct {
 }
 
 type GPTPayload struct {
-	Model            string     `json:"model"`
-	Messages         []Messagee `json:"messages"`
-	MaxTokens        int        `json:"max_tokens"`
-	Temperature      int        `json:"temperature"`
-	TopP             int        `json:"top_p"`
-	FrequencyPenalty int        `json:"frequency_penalty"`
-	PresencePenalty  int        `json:"presence_penalty"`
+	Model            string        `json:"model"`
+	Messages         []RoleMessage `json:"messages"`
+	MaxTokens        int           `json:"max_tokens"`
+	Temperature      int           `json:"temperature"`
+	TopP             int           `json:"top_p"`
+	FrequencyPenalty int           `json:"frequency_penalty"`
+	PresencePenalty  int           `json:"presence_penalty"`
 }
