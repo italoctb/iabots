@@ -6,7 +6,6 @@ import (
 	"app/server/database"
 	"app/server/models"
 	"app/server/pipelines"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,9 +33,6 @@ func GPTHandler(c *gin.Context) {
 
 		return
 	}
-	fmt.Println("Sender: " + requestPayload.Messages[len(requestPayload.Messages)-1].From)
-	fmt.Println("Receiver: " + requestPayload.Contacts[len(requestPayload.Contacts)-1].WidReceiver)
-	fmt.Println("NewReceiver: " + Costumer.Wid)
 	payloadMessage := models.Message{
 		WidReceiver: Costumer.Wid,
 		WidSender:   requestPayload.Messages[len(requestPayload.Messages)-1].From,
