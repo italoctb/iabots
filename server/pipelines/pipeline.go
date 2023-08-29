@@ -190,7 +190,7 @@ func ResetStateTemplate(b bots.Bot, c models.Costumer, Message *models.Message) 
 func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) error {
 	user := getUserFromMessage(c, *Message)
 	session := b.GetSession(c.Wid, user)
-	if getConditionsToReset(Message.Message, session.UpdateAt) {
+	if getConditionsToReset(Message.Message, session.UpdateAt) && session.State != "INITIAL" {
 		b.SendMessage("_Sessão encerrada_", c.Wid, user)
 		b.SetState("CLOSED", c.Wid, user)
 	}
@@ -198,7 +198,7 @@ func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) error {
 }
 
 func getConditionsToReset(message string, updatedAt time.Time) bool {
-	delayTime := (-30) * time.Minute //(-24) * time.Hour || (-1) * time.Minute
+	delayTime := (-10) * time.Minute //(-24) * time.Hour || (-1) * time.Minute
 	currentTime := time.Now()
 	check := currentTime.Add(delayTime).After(updatedAt) || message == "reset"
 	return check
