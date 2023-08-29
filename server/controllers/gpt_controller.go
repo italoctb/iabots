@@ -13,7 +13,7 @@ import (
 func GPTHandler(c *gin.Context) {
 	db := database.GetDatabase()
 
-	var requestPayload adapters.ResponseMessage
+	var requestPayload adapters.ResponseType
 	err := c.ShouldBindJSON(&requestPayload)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -35,8 +35,8 @@ func GPTHandler(c *gin.Context) {
 	}
 	payloadMessage := models.Message{
 		WidReceiver: Costumer.Wid,
-		WidSender:   requestPayload.From,
-		Message:     requestPayload.Text.Body,
+		WidSender:   requestPayload.Messages[len(requestPayload.Messages)-1].From,
+		Message:     requestPayload.Messages[len(requestPayload.Messages)-1].Text.Body,
 		ProcessedAt: true,
 	}
 	err = pipelines.ChainProcessGPT(Bot, Costumer, &payloadMessage)
