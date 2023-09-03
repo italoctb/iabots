@@ -8,7 +8,7 @@ type Bot interface {
 	GetOptions(string, string) []int
 	GetLink(int, string, string) string
 	TemplateMessage(state string) string
-	SetState(string, string, string) string
+	SetState(string, string, string) models.Session
 	GetSession(string, string) models.Session
 	GetStateTemplate(string, string) string
 	RateSession(rate int, client string, user string)

@@ -26,7 +26,7 @@ func (l ExampleBot) SendMessage(message string, sender string, receiver string) 
 	return err
 }
 
-func (l ExampleBot) SetState(state string, widCostumer string, widUser string) string {
+func (l ExampleBot) SetState(state string, widCostumer string, widUser string) models.Session {
 	session := l.GetSession(widCostumer, widUser)
 
 	db := database.GetDatabase()
@@ -34,7 +34,7 @@ func (l ExampleBot) SetState(state string, widCostumer string, widUser string) s
 	session.State = state
 	session.UpdateAt = time.Now()
 	db.Save(&session)
-	return ""
+	return session
 }
 
 func (l ExampleBot) GetStateTemplate(widCostumer string, widUser string) string {

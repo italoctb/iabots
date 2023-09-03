@@ -39,11 +39,11 @@ func GPTHandler(c *gin.Context) {
 		Message:     requestPayload.Messages[len(requestPayload.Messages)-1].Text.Body,
 		ProcessedAt: true,
 	}
-	err = pipelines.ChainProcessGPT(Bot, Costumer, &payloadMessage)
+	response, err := pipelines.ChainProcessGPT(Bot, Costumer, &payloadMessage)
 	if err != nil {
-		c.JSON(400, "Erro")
+		c.JSON(400, "Erro GPT Pipeline")
 	}
-	c.JSON(200, "Sucesso")
+	c.JSON(200, response)
 
 }
 
