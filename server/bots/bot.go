@@ -12,13 +12,13 @@ import (
 type ExampleBot struct {
 }
 
-func (l ExampleBot) SendMessage(message string, sender string, receiver string) error {
+func (l ExampleBot) SendMessage(message string, sender string, receiver string, sessionId int) error {
 	db := database.GetDatabase()
 	newMessage := models.Message{
 		Message:     message,
 		WidSender:   sender,
 		WidReceiver: receiver,
-		SessionID:   int(l.GetSession(sender, receiver).ID),
+		SessionID:   sessionId,
 		ProcessedAt: true}
 	db.Create(&newMessage)
 	Positus := adapters.Positus{}

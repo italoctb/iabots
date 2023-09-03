@@ -22,7 +22,7 @@ func TemplateResponse(b bots.Bot, c models.Costumer, Message *models.Message) er
 		return nil
 	}
 	TemplateMessage := b.TemplateMessage(state)
-	err := b.SendMessage(TemplateMessage, c.Wid, Message.WidSender)
+	err := b.SendMessage(TemplateMessage, c.Wid, Message.WidSender, b.GetSession(c.Wid, user).ID)
 	return err
 }
 
@@ -123,7 +123,7 @@ func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) (str
 
 	finalResponse := aiResponse.Choices[0].Message.Content
 
-	err = b.SendMessage(finalResponse, c.Wid, Message.WidSender)
+	err = b.SendMessage(finalResponse, c.Wid, Message.WidSender, b.GetSession(c.Wid, user).ID)
 	if err != nil {
 		return "", err
 	}
@@ -134,19 +134,19 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Costumer, Message *mo
 	user := getUserFromMessage(c, *Message)
 	Option, err := strconv.Atoi(Message.Message)
 	if err != nil && (b.GetStateTemplate(c.Wid, user) != b.GetFirstTemplate(c.Wid)) {
-		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
+		b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender, b.GetSession(c.Wid, user).ID)
 		return err
 	}
 	options := b.GetOptions(c.Wid, user)
 	if checkStateOptions(b, c, user, options, Option) {
 		if Option != 0 {
-			b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender)
+			b.SendMessage(c.FallbackMessage, c.Wid, Message.WidSender, b.GetSession(c.Wid, user).ID)
 		}
 		return nil
 	} else {
 		if strconv.FormatUint(uint64(c.RateTemplateID), 10) == b.GetStateTemplate(c.Wid, user) {
 			b.RateSession(Option, c.Wid, user)
-			b.SendMessage(c.EndMessage, c.Wid, Message.WidSender)
+			b.SendMessage(c.EndMessage, c.Wid, Message.WidSender, b.GetSession(c.Wid, user).ID)
 			b.SetState("end", c.Wid, user)
 			return err
 		}
@@ -225,7 +225,7 @@ func ChainProcessGPT(b bots.Bot, c models.Costumer, Message *models.Message) (st
 		db.Create(&Message)
 
 		user := getUserFromMessage(c, *Message)
-		b.SendMessage("_Sessão encerrada_", c.Wid, user)
+		b.SendMessage("_Sessão encerrada_", c.Wid, user, session.ID)
 		ChangeStateBasedStatus(b, c, Message)
 	} else {
 		session, err = ChangeStateBasedStatus(b, c, Message)
