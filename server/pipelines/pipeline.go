@@ -62,7 +62,7 @@ func GetRoleMessages(b bots.Bot, c models.Costumer, userNumber string) []RoleMes
 	return roleMessages
 }
 
-func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) error {
+func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) (string, error) {
 	user := getUserFromMessage(c, *Message)
 	gptMessages := GetRoleMessages(b, c, user)
 
@@ -70,7 +70,7 @@ func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) erro
 		Model:            "gpt-3.5-turbo",
 		Messages:         gptMessages,
 		MaxTokens:        1500,
-		Temperature:      1,
+		Temperature:      0.33,
 		TopP:             1,
 		FrequencyPenalty: 1,
 		PresencePenalty:  1,
@@ -80,7 +80,7 @@ func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) erro
 	gptPayloadBody, err := json.Marshal(gptPayload)
 	if err != nil {
 
-		return err
+		return "", err
 	}
 
 	fmt.Println(string(gptPayloadBody))
@@ -90,7 +90,7 @@ func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) erro
 	req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", gptPayloadStream)
 	if err != nil {
 
-		return err
+		return "", err
 	}
 
 	req.Header.Add("Content-Type", "application/json")
@@ -100,19 +100,20 @@ func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) erro
 
 	if err != nil {
 
-		return err
+		return "", err
+
 	}
 	defer res.Body.Close()
 	bytes, err := io.ReadAll(res.Body)
 	if err != nil {
 
-		return err
+		return "", err
 	}
 	var aiResponse GPTResponse
 	err = json.Unmarshal([]byte(bytes), &aiResponse)
 	if err != nil {
 
-		return err
+		return "", err
 	}
 	for _, message := range aiResponse.Choices {
 		fmt.Println("xxxxxx")
@@ -123,7 +124,10 @@ func GetGPTResponse(b bots.Bot, c models.Costumer, Message *models.Message) erro
 	finalResponse := aiResponse.Choices[0].Message.Content
 
 	err = b.SendMessage(finalResponse, c.Wid, Message.WidSender)
-	return err
+	if err != nil {
+		return "", err
+	}
+	return finalResponse, nil
 }
 
 func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Costumer, Message *models.Message) error {
@@ -151,15 +155,15 @@ func ChangeStateBasedOnSelectedOption(b bots.Bot, c models.Costumer, Message *mo
 	return err
 }
 
-func ChangeStateBasedStatus(b bots.Bot, c models.Costumer, Message *models.Message) error {
+func ChangeStateBasedStatus(b bots.Bot, c models.Costumer, Message *models.Message) (models.Session, error) {
 	user := getUserFromMessage(c, *Message)
 
 	// if b.GetSession(c.Wid, user).State == "INITIAL" {
 	// 	b.SendMessage("Olá! Me chamo Delillah, sou sua assistente virtual GPT!", c.Wid, user)
 	// }
 
-	b.SetState("ACTIVE", c.Wid, user)
-	return nil
+	session := b.SetState("ACTIVE", c.Wid, user)
+	return session, nil
 }
 
 func getUserFromMessage(c models.Costumer, m models.Message) string {
@@ -187,18 +191,17 @@ func ResetStateTemplate(b bots.Bot, c models.Costumer, Message *models.Message) 
 	return nil
 }
 
-func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) error {
+func ResetState(b bots.Bot, c models.Costumer, Message *models.Message) (models.Session, error) {
 	user := getUserFromMessage(c, *Message)
 	session := b.GetSession(c.Wid, user)
 	if getConditionsToReset(Message.Message, session.UpdateAt) && session.State != "INITIAL" {
-		b.SendMessage("_Sessão encerrada_", c.Wid, user)
-		b.SetState("CLOSED", c.Wid, user)
+		session = b.SetState("CLOSED", c.Wid, user)
 	}
-	return nil
+	return session, nil
 }
 
 func getConditionsToReset(message string, updatedAt time.Time) bool {
-	delayTime := (-10) * time.Minute //(-24) * time.Hour || (-1) * time.Minute
+	delayTime := (-30) * time.Minute //(-24) * time.Hour || (-1) * time.Minute
 	currentTime := time.Now()
 	check := currentTime.Add(delayTime).After(updatedAt) || message == "reset"
 	return check
@@ -214,15 +217,32 @@ func ChainProcess(b bots.Bot, c models.Costumer, Message *models.Message) error 
 	return nil
 }
 
-func ChainProcessGPT(b bots.Bot, c models.Costumer, Message *models.Message) error {
-	ResetState(b, c, Message)
-	ChangeStateBasedStatus(b, c, Message)
-	user := getUserFromMessage(c, *Message)
-	Message.SessionID = b.GetSession(c.Wid, user).ID
-	db := database.GetDatabase()
-	db.Create(&Message)
-	GetGPTResponse(b, c, Message)
-	return nil
+func ChainProcessGPT(b bots.Bot, c models.Costumer, Message *models.Message) (string, error) {
+	session, err := ResetState(b, c, Message)
+	if session.State == "CLOSED" {
+		Message.SessionID = session.ID
+		db := database.GetDatabase()
+		db.Create(&Message)
+
+		user := getUserFromMessage(c, *Message)
+		b.SendMessage("_Sessão encerrada_", c.Wid, user)
+		ChangeStateBasedStatus(b, c, Message)
+	} else {
+		session, err = ChangeStateBasedStatus(b, c, Message)
+		Message.SessionID = session.ID
+		db := database.GetDatabase()
+		db.Create(&Message)
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	response, err := GetGPTResponse(b, c, Message)
+	if err != nil {
+		return "", err
+	}
+	return response, nil
 }
 
 type RoleMessage struct {
@@ -254,7 +274,7 @@ type GPTPayload struct {
 	Model            string        `json:"model"`
 	Messages         []RoleMessage `json:"messages"`
 	MaxTokens        int           `json:"max_tokens"`
-	Temperature      int           `json:"temperature"`
+	Temperature      float32       `json:"temperature"`
 	TopP             int           `json:"top_p"`
 	FrequencyPenalty int           `json:"frequency_penalty"`
 	PresencePenalty  int           `json:"presence_penalty"`
