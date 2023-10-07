@@ -48,8 +48,16 @@ func GPTHandler(c *gin.Context) {
 }
 
 func ValidateWebhook(c *gin.Context) {
+	var metaResponse MetaWebhookContest
 
-	c.JSON(200, 1138335707)
+	err := c.ShouldBindJSON(&metaResponse)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot bind JSON: " + err.Error(),
+		})
+		return
+	}
+	c.JSON(200, metaResponse.Challenge)
 
 }
 
@@ -61,6 +69,11 @@ type GPTPayload struct {
 	TopP             int          `json:"top_p"`
 	FrequencyPenalty int          `json:"frequency_penalty"`
 	PresencePenalty  int          `json:"presence_penalty"`
+}
+
+type MetaWebhookContest struct {
+	VerifyToken string `json:"hub.verify_token"`
+	Challenge   string `json:"hub.challenge"`
 }
 
 type MessageGPT struct {
