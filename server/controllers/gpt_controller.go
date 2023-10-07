@@ -49,7 +49,8 @@ func GPTHandler(c *gin.Context) {
 
 func ValidateWebhook(c *gin.Context) {
 
-	c.Status(200)
+	c.JSON(200, "dragonballz")
+
 }
 
 type GPTPayload struct {
