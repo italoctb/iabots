@@ -48,16 +48,15 @@ func GPTHandler(c *gin.Context) {
 }
 
 func ValidateWebhook(c *gin.Context) {
-	var metaResponse MetaWebhookContest
 
-	err := c.ShouldBindJSON(&metaResponse)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"error": "cannot bind JSON: " + err.Error(),
-		})
+	verifyToken := c.Query("hub.verify_token")
+	challenge := c.Query("hub.challenge")
+
+	// Verifique se o token de verificação corresponde ao seu token configurado
+	if verifyToken == "dragonballz" {
+		c.JSON(200, challenge)
 		return
 	}
-	c.JSON(200, metaResponse.Challenge)
 
 }
 
