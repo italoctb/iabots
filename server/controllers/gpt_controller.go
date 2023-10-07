@@ -6,6 +6,7 @@ import (
 	"app/server/database"
 	"app/server/models"
 	"app/server/pipelines"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -54,7 +55,8 @@ func ValidateWebhook(c *gin.Context) {
 
 	// Verifique se o token de verificação corresponde ao seu token configurado
 	if verifyToken == "dragonballz" {
-		c.JSON(200, challenge)
+		// Retorne o valor hub.challenge para concluir a verificação
+		c.String(http.StatusOK, challenge)
 		return
 	}
 
