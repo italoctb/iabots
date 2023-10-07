@@ -13,9 +13,10 @@ type TextMeta struct {
 	Body string `json:"body"`
 }
 type Meta struct {
-	To   string `json:"to"`
-	Type string `json:"type"`
-	Text Text   `json:"text"`
+	MessagingProduct string `json:"messaging_product"`
+	To               string `json:"to"`
+	Type             string `json:"type"`
+	Text             Text   `json:"text"`
 }
 
 func (m Meta) GetUrl() string {
@@ -27,7 +28,7 @@ func (m Meta) GetToken() string {
 }
 
 func (m Meta) SendMessage(widReceiver string, message string) error {
-	Message := &Positus{To: widReceiver, Type: "text", Text: Text{Body: message}}
+	Message := &Meta{To: widReceiver, Type: "text", Text: Text{Body: message}, MessagingProduct: "whatsapp"}
 	b, _ := json.Marshal(Message)
 
 	//fmt.Println(b)
