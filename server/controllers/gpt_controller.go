@@ -49,7 +49,7 @@ func GPTHandler(c *gin.Context) {
 
 func ValidateWebhook(c *gin.Context) {
 
-	c.JSON(200, "dragonballz")
+	c.JSON(200, 1138335707)
 
 }
 
