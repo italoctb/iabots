@@ -85,7 +85,7 @@ func MetaGPTHandler(c *gin.Context) {
 
 		return
 	}
-	responseMessages := requestPayload.Entry[len(requestPayload.Entry)-1].Changes[len(requestPayload.Entry[len(requestPayload.Entry)-1].Changes)-1].Value[len(requestPayload.Entry[len(requestPayload.Entry)-1].Changes[len(requestPayload.Entry[len(requestPayload.Entry)-1].Changes)-1].Value)-1].Messages
+	responseMessages := requestPayload.Entry[len(requestPayload.Entry)-1].Changes[len(requestPayload.Entry[len(requestPayload.Entry)-1].Changes)-1].Value.Messages
 	payloadMessage := models.Message{
 		WidReceiver: Costumer.Wid,
 		WidSender:   responseMessages[len(responseMessages)-1].From,

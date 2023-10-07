@@ -111,6 +111,6 @@ type MetaObjectEntry struct {
 }
 
 type MetaEntryChange struct {
-	Field string             `json:"field"`
-	Value []MetaResponseType `json:"value"`
+	Field string           `json:"field"`
+	Value MetaResponseType `json:"value"`
 }
