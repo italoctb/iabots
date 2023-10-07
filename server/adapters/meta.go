@@ -19,11 +19,11 @@ type Meta struct {
 }
 
 func (m Meta) GetUrl() string {
-	return os.Getenv("POSITUS_URL")
+	return os.Getenv("META_URL")
 }
 
 func (m Meta) GetToken() string {
-	return os.Getenv("POSITUS_TOKEN")
+	return os.Getenv("META_TOKEN")
 }
 
 func (m Meta) SendMessage(widReceiver string, message string) error {
@@ -73,20 +73,44 @@ func (m Meta) SendMessage(widReceiver string, message string) error {
 //     "type": "text"
 //   }]
 
-type ResponseTextMeta struct {
-	Body string `json:"body"`
-}
-type ResponseMessageMeta struct {
+type MetaResponseMessage struct {
 	From      string       `json:"from"`
 	ID        string       `json:"id"`
 	Timestamp string       `json:"timestamp"`
 	Text      ResponseText `json:"text"`
 	Type      string       `json:"type"`
 }
-type ResponseContactMeta struct {
-	WidReceiver string `json:"wa_id"`
+type MetaResponseContact struct {
+	Profile     MetaProfileType `json:"profile"`
+	WidReceiver string          `json:"wa_id"`
 }
-type ResponseTypeMeta struct {
-	Contacts []ResponseContact `json:"contacts"`
-	Messages []ResponseMessage `json:"messages"`
+type MetaResponseType struct {
+	MessagingProduct string                `json:"messaging_product"`
+	Metadata         MetaDataType          `json:"metadata"`
+	Contacts         []MetaResponseContact `json:"contacts"`
+	Messages         []MetaResponseMessage `json:"messages"`
+}
+
+type MetaDataType struct {
+	DisplayPhoneNumber string `json:"display_phone_number"`
+	PhoneNumberId      string `json:"phone_number_id"`
+}
+
+type MetaProfileType struct {
+	Name string `json:"name"`
+}
+
+type MetaResponseObject struct {
+	Object string            `json:"object"`
+	Entry  []MetaObjectEntry `json:"entry"`
+}
+
+type MetaObjectEntry struct {
+	Id      string            `json:"id"`
+	Changes []MetaEntryChange `json:"changes"`
+}
+
+type MetaEntryChange struct {
+	Field string             `json:"field"`
+	Value []MetaResponseType `json:"value"`
 }

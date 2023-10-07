@@ -21,8 +21,9 @@ func (l ExampleBot) SendMessage(message string, sender string, receiver string, 
 		SessionID:   sessionId,
 		ProcessedAt: true}
 	db.Create(&newMessage)
-	Positus := adapters.Positus{}
-	err := Positus.SendMessage(receiver, message)
+	//Positus := adapters.Positus{}
+	Meta := adapters.Meta{}
+	err := Meta.SendMessage(receiver, message)
 	return err
 }
 

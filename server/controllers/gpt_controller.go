@@ -62,6 +62,44 @@ func ValidateWebhook(c *gin.Context) {
 
 }
 
+func MetaGPTHandler(c *gin.Context) {
+	db := database.GetDatabase()
+
+	var requestPayload adapters.MetaResponseObject
+	err := c.ShouldBindJSON(&requestPayload)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot bind JSON: " + err.Error(),
+		})
+		return
+	}
+	var Costumer models.Costumer
+
+	Bot := bots.ExampleBot{}
+	err = db.First(&Costumer).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot retrieve Costumer: " + err.Error(),
+		})
+
+		return
+	}
+	responseMessages := requestPayload.Entry[len(requestPayload.Entry)-1].Changes[len(requestPayload.Entry[len(requestPayload.Entry)-1].Changes)-1].Value[len(requestPayload.Entry[len(requestPayload.Entry)-1].Changes[len(requestPayload.Entry[len(requestPayload.Entry)-1].Changes)-1].Value)-1].Messages
+	payloadMessage := models.Message{
+		WidReceiver: Costumer.Wid,
+		WidSender:   responseMessages[len(responseMessages)-1].From,
+		Message:     responseMessages[len(responseMessages)-1].Text.Body,
+		ProcessedAt: true,
+	}
+	response, err := pipelines.ChainProcessGPT(Bot, Costumer, &payloadMessage)
+	if err != nil {
+		c.JSON(400, "Erro GPT Pipeline")
+	}
+	c.JSON(200, response)
+
+}
+
 type GPTPayload struct {
 	Model            string       `json:"model"`
 	Messages         []MessageGPT `json:"messages"`

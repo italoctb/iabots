@@ -70,7 +70,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 
 		gpt := main.Group("gpt")
 		{
-			gpt.POST("/", controllers.GPTHandler)
+			gpt.POST("/", controllers.MetaGPTHandler)
 			gpt.GET("/", controllers.ValidateWebhook)
 		}
 		/*whatsapp := main.Group("whatsapp")
