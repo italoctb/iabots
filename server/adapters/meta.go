@@ -36,6 +36,9 @@ func (m Meta) SendMessage(widReceiver string, message string) error {
 	url := m.GetUrl()
 
 	client := &http.Client{}
+
+	fmt.Println("INICIANDO ENVIO DE RESPOSTA")
+
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 
 	if err != nil {

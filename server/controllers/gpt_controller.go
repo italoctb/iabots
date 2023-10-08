@@ -73,7 +73,6 @@ func MetaGPTHandler(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(200, requestPayload)
 	var Costumer models.Costumer
 
 	Bot := bots.ExampleBot{}
