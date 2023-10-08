@@ -40,6 +40,7 @@ func (m Meta) SendMessage(widReceiver string, message string) error {
 
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+m.GetToken())
@@ -47,13 +48,20 @@ func (m Meta) SendMessage(widReceiver string, message string) error {
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
+
+	if res != nil && res.Body != nil {
+		defer res.Body.Close()
+
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(string(body))
+		}
 	}
-	fmt.Println(string(body))
+
 	return err
 }
 
