@@ -73,6 +73,7 @@ func MetaGPTHandler(c *gin.Context) {
 		})
 		return
 	}
+	c.JSON(200, requestPayload)
 	var Costumer models.Costumer
 
 	Bot := bots.ExampleBot{}
@@ -87,7 +88,7 @@ func MetaGPTHandler(c *gin.Context) {
 	}
 
 	if requestPayload.Entry != nil && requestPayload.Entry[0].Changes != nil && len(requestPayload.Entry[0].Changes[0].Value.Messages) > 0 {
-		c.JSON(200, requestPayload)
+
 		responseMessages := requestPayload.Entry[0].Changes[0].Value.Messages
 		payloadMessage := models.Message{
 			WidReceiver: Costumer.Wid,
