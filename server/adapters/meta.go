@@ -38,6 +38,7 @@ func (m Meta) SendMessage(widReceiver string, message string) error {
 	client := &http.Client{}
 
 	fmt.Println("INICIANDO ENVIO DE RESPOSTA")
+	fmt.Println("Remetente: " + widReceiver)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(b))
 
