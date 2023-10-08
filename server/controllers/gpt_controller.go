@@ -85,18 +85,29 @@ func MetaGPTHandler(c *gin.Context) {
 
 		return
 	}
-	responseMessages := requestPayload.Entry[len(requestPayload.Entry)-1].Changes[len(requestPayload.Entry[len(requestPayload.Entry)-1].Changes)-1].Value.Messages
-	payloadMessage := models.Message{
-		WidReceiver: Costumer.Wid,
-		WidSender:   responseMessages[len(responseMessages)-1].From,
-		Message:     responseMessages[len(responseMessages)-1].Text.Body,
-		ProcessedAt: true,
+
+	//req.body.entry &&
+	// req.body.entry[0].changes &&
+	// req.body.entry[0].changes[0] &&
+	// req.body.entry[0].changes[0].value.messages &&
+	// req.body.entry[0].changes[0].value.messages[0]
+
+	if requestPayload.Entry != nil && requestPayload.Entry[0].Changes != nil && requestPayload.Entry[0].Changes[0].Value.Messages != nil {
+		responseMessages := requestPayload.Entry[0].Changes[0].Value.Messages
+		payloadMessage := models.Message{
+			WidReceiver: Costumer.Wid,
+			WidSender:   responseMessages[0].From,
+			Message:     responseMessages[0].Text.Body,
+			ProcessedAt: true,
+		}
+		response, err := pipelines.ChainProcessGPT(Bot, Costumer, &payloadMessage)
+		if err != nil {
+			c.JSON(400, "Erro GPT Pipeline")
+		}
+		c.JSON(200, response)
+	} else {
+		c.Status(404)
 	}
-	response, err := pipelines.ChainProcessGPT(Bot, Costumer, &payloadMessage)
-	if err != nil {
-		c.JSON(400, "Erro GPT Pipeline")
-	}
-	c.JSON(200, response)
 
 }
 
