@@ -86,13 +86,7 @@ func MetaGPTHandler(c *gin.Context) {
 		return
 	}
 
-	//req.body.entry &&
-	// req.body.entry[0].changes &&
-	// req.body.entry[0].changes[0] &&
-	// req.body.entry[0].changes[0].value.messages &&
-	// req.body.entry[0].changes[0].value.messages[0]
-
-	if requestPayload.Entry != nil && requestPayload.Entry[0].Changes != nil && requestPayload.Entry[0].Changes[0].Value.Messages != nil {
+	if requestPayload.Entry != nil && requestPayload.Entry[0].Changes != nil && len(requestPayload.Entry[0].Changes[0].Value.Messages) > 0 {
 		responseMessages := requestPayload.Entry[0].Changes[0].Value.Messages
 		payloadMessage := models.Message{
 			WidReceiver: Costumer.Wid,
@@ -102,7 +96,7 @@ func MetaGPTHandler(c *gin.Context) {
 		}
 		response, err := pipelines.ChainProcessGPT(Bot, Costumer, &payloadMessage)
 		if err != nil {
-			c.JSON(400, "Erro GPT Pipeline")
+			c.JSON(400, "Erro GPT Pipeline:"+err.Error())
 		}
 		c.JSON(200, response)
 	} else {
