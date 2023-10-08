@@ -28,7 +28,7 @@ func (m Meta) GetToken() string {
 }
 
 func (m Meta) SendMessage(widReceiver string, message string) error {
-	Message := &Meta{To: widReceiver, Type: "text", Text: Text{Body: message}, MessagingProduct: "whatsapp"}
+	Message := &Meta{To: "5585997112838", Type: "text", Text: Text{Body: message}, MessagingProduct: "whatsapp"}
 	b, _ := json.Marshal(Message)
 
 	//fmt.Println(b)
