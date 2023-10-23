@@ -19,7 +19,7 @@ func ShowCostumer(c *gin.Context) {
 
 	db := database.GetDatabase()
 
-	var Message models.Costumer
+	var Message models.Customer
 	err = db.First(&Message, newid).Error
 
 	if err != nil {
@@ -36,7 +36,7 @@ func ShowCostumer(c *gin.Context) {
 func CreateCostumer(c *gin.Context) {
 	db := database.GetDatabase()
 
-	var Costumer models.Costumer
+	var Costumer models.Customer
 
 	err := c.ShouldBindJSON(&Costumer)
 
@@ -59,7 +59,7 @@ func CreateCostumer(c *gin.Context) {
 func ShowCostumers(c *gin.Context) {
 	db := database.GetDatabase()
 
-	var Costumers []models.Costumer
+	var Costumers []models.Customer
 
 	err := db.Order("id desc").Find(&Costumers).Error
 
@@ -76,7 +76,7 @@ func ShowCostumers(c *gin.Context) {
 
 func UpdateCostumer(c *gin.Context) {
 	db := database.GetDatabase()
-	var Costumer models.Costumer
+	var Costumer models.Customer
 	err := c.ShouldBindJSON(&Costumer)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot bind the JSON"})
@@ -101,7 +101,7 @@ func DeleteCostumer(c *gin.Context) {
 	}
 
 	db := database.GetDatabase()
-	err = db.Delete(&models.Costumer{}, newid).Error
+	err = db.Delete(&models.Customer{}, newid).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot find the ID: " + err.Error()})
@@ -113,7 +113,7 @@ func DeleteCostumer(c *gin.Context) {
 
 func DeleteAllCostumers(c *gin.Context) {
 	db := database.GetDatabase()
-	err := db.Where("1 = 1").Delete(&models.Costumer{}).Error
+	err := db.Where("1 = 1").Delete(&models.Customer{}).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot find the ID: " + err.Error()})

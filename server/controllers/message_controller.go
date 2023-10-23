@@ -133,7 +133,7 @@ func ProcessMessages(c *gin.Context) {
 
 	var Messages []models.Message
 
-	var Costumer models.Costumer
+	var Costumer models.Customer
 
 	err := db.Where("processed_at = ?", false).Find(&Messages).Error
 	if err != nil {
@@ -167,7 +167,7 @@ func PositusWebhook(c *gin.Context) {
 
 	var PositusResponse adapters.ResponseType
 
-	var Costumer models.Costumer
+	var Costumer models.Customer
 
 	err := c.ShouldBindJSON(&PositusResponse)
 

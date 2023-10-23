@@ -7,9 +7,10 @@ import (
 )
 
 func RunMigrations(db *gorm.DB) {
-	db.AutoMigrate(models.Costumer{})
+	db.AutoMigrate(models.Customer{})
 	db.AutoMigrate(models.Message{})
 	db.AutoMigrate(models.Template{})
 	db.AutoMigrate(models.Option{})
 	db.AutoMigrate(models.Session{})
+	db.AutoMigrate(models.CustomerRoleMessage{})
 }

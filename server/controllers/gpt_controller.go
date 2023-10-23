@@ -22,7 +22,7 @@ func GPTHandler(c *gin.Context) {
 		})
 		return
 	}
-	var Costumer models.Costumer
+	var Costumer models.Customer
 
 	Bot := bots.ExampleBot{}
 	err = db.First(&Costumer).Error
@@ -73,7 +73,7 @@ func MetaGPTHandler(c *gin.Context) {
 		})
 		return
 	}
-	var Costumer models.Costumer
+	var Costumer models.Customer
 
 	Bot := bots.ExampleBot{}
 	err = db.First(&Costumer).Error
