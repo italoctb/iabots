@@ -67,6 +67,15 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			Costumer.DELETE("/:id", controllers.DeleteCostumer)
 			Costumer.DELETE("/deleteall", controllers.DeleteAllCostumers)
 		}
+		Faq := main.Group("faq")
+		{
+			Faq.GET("/:id", controllers.ShowFaqsFromCostumer)
+			Faq.GET("/", controllers.ShowFaqs)
+			Faq.POST("/", controllers.CreateFaq)
+			Faq.PUT("/:id", controllers.UpdateFaq)
+			Faq.DELETE("/:id", controllers.DeleteFaq)
+			Faq.DELETE("/deleteall", controllers.DeleteAllFaqs)
+		}
 
 		gpt := main.Group("gpt")
 		{
