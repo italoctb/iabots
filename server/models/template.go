@@ -9,7 +9,7 @@ import (
 
 type Template struct {
 	ID              uint           `json:"id" gorm:"primaryKey"`
-	WidCostumer     string         `json:"wid_costumer"`
+	WidCustomer     string         `json:"wid_customer"`
 	TemplateMessage string         `json:"template_message"`
 	IsFirst         bool           `json:"is_first"`
 	Options         []Option       `json:"options" gorm:"ForeignKey:TemplateID"`

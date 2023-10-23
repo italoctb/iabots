@@ -133,7 +133,7 @@ func ProcessMessages(c *gin.Context) {
 
 	var Messages []models.Message
 
-	var Costumer models.Customer
+	var Customer models.Customer
 
 	err := db.Where("processed_at = ?", false).Find(&Messages).Error
 	if err != nil {
@@ -144,11 +144,11 @@ func ProcessMessages(c *gin.Context) {
 		return
 	}
 
-	err = db.First(&Costumer).Error
+	err = db.First(&Customer).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
-			"error": "cannot retrieve Costumer: " + err.Error(),
+			"error": "cannot retrieve Customer: " + err.Error(),
 		})
 
 		return
@@ -156,7 +156,7 @@ func ProcessMessages(c *gin.Context) {
 
 	for _, Message := range Messages {
 		var bot bots.ExampleBot
-		pipelines.ChainProcess(bot, Costumer, &Message)
+		pipelines.ChainProcess(bot, Customer, &Message)
 	}
 
 	c.JSON(200, Messages)
@@ -167,7 +167,7 @@ func PositusWebhook(c *gin.Context) {
 
 	var PositusResponse adapters.ResponseType
 
-	var Costumer models.Customer
+	var Customer models.Customer
 
 	err := c.ShouldBindJSON(&PositusResponse)
 
@@ -178,11 +178,11 @@ func PositusWebhook(c *gin.Context) {
 		return
 	}
 
-	err = db.First(&Costumer).Error
+	err = db.First(&Customer).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
-			"error": "cannot retrieve Costumer: " + err.Error(),
+			"error": "cannot retrieve Customer: " + err.Error(),
 		})
 
 		return
@@ -192,12 +192,12 @@ func PositusWebhook(c *gin.Context) {
 		if PositusMessage.Type == "text" {
 			Message := models.Message{
 				WidSender:   PositusMessage.From,
-				WidReceiver: Costumer.Wid,
+				WidReceiver: Customer.Wid,
 				Message:     PositusMessage.Text.Body,
 			}
 			db.Create(&Message)
 			Bot := bots.ExampleBot{}
-			pipelines.ChainProcess(Bot, Costumer, &Message)
+			pipelines.ChainProcess(Bot, Customer, &Message)
 			fmt.Println(Message)
 		}
 	}

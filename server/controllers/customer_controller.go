@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ShowCostumer(c *gin.Context) {
+func ShowCustomer(c *gin.Context) {
 	id := c.Param("id")
 	newid, err := strconv.Atoi(id)
 	if err != nil {
@@ -33,12 +33,12 @@ func ShowCostumer(c *gin.Context) {
 	c.JSON(200, Message)
 }
 
-func CreateCostumer(c *gin.Context) {
+func CreateCustomer(c *gin.Context) {
 	db := database.GetDatabase()
 
-	var Costumer models.Customer
+	var Customer models.Customer
 
-	err := c.ShouldBindJSON(&Costumer)
+	err := c.ShouldBindJSON(&Customer)
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -46,22 +46,22 @@ func CreateCostumer(c *gin.Context) {
 		})
 		return
 	}
-	err = db.Create(&Costumer).Error
+	err = db.Create(&Customer).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": "cannot create Message: " + err.Error(),
 		})
 	}
-	c.JSON(200, Costumer)
+	c.JSON(200, Customer)
 }
 
-func ShowCostumers(c *gin.Context) {
+func ShowCustomers(c *gin.Context) {
 	db := database.GetDatabase()
 
-	var Costumers []models.Customer
+	var Customers []models.Customer
 
-	err := db.Order("id desc").Find(&Costumers).Error
+	err := db.Order("id desc").Find(&Customers).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -71,26 +71,26 @@ func ShowCostumers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, Costumers)
+	c.JSON(200, Customers)
 }
 
-func UpdateCostumer(c *gin.Context) {
+func UpdateCustomer(c *gin.Context) {
 	db := database.GetDatabase()
-	var Costumer models.Customer
-	err := c.ShouldBindJSON(&Costumer)
+	var Customer models.Customer
+	err := c.ShouldBindJSON(&Customer)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot bind the JSON"})
 		return
 	}
-	err = db.Save(&Costumer).Error
+	err = db.Save(&Customer).Error
 	if err != nil {
 		c.JSON(400, gin.H{"error": "cannot update Message: " + err.Error()})
 	}
 
-	c.JSON(200, Costumer)
+	c.JSON(200, Customer)
 }
 
-func DeleteCostumer(c *gin.Context) {
+func DeleteCustomer(c *gin.Context) {
 	id := c.Param("id")
 	newid, err := strconv.Atoi(id)
 	if err != nil {
@@ -111,7 +111,7 @@ func DeleteCostumer(c *gin.Context) {
 	c.Status(204)
 }
 
-func DeleteAllCostumers(c *gin.Context) {
+func DeleteAllCustomers(c *gin.Context) {
 	db := database.GetDatabase()
 	err := db.Where("1 = 1").Delete(&models.Customer{}).Error
 

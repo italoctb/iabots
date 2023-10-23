@@ -22,7 +22,7 @@ func ShowFaq(c *gin.Context) {
 	db := database.GetDatabaseSql()
 
 	var faq models.Faq
-	err = db.QueryRow("SELECT id, costumer_id, question, answer, prompt, embedding FROM faqs WHERE id = $1", newID).Scan(&faq.ID, &faq.CustomerId, &faq.Question, &faq.Answer, &faq.Embedding)
+	err = db.QueryRow("SELECT id, customer_id, question, answer, prompt, embedding FROM faqs WHERE id = $1", newID).Scan(&faq.ID, &faq.CustomerId, &faq.Question, &faq.Answer, &faq.Embedding)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -99,14 +99,14 @@ func ShowFaqs(c *gin.Context) {
 	c.JSON(200, faqs)
 }
 
-func ShowFaqsFromCostumer(c *gin.Context) {
+func ShowFaqsFromCustomer(c *gin.Context) {
 	id := c.Param("id")
 	db := database.GetDatabaseSql()
 
 	var faqs []models.Faq
 
 	// Executar a consulta SQL para buscar FAQs de um cliente específico
-	rows, err := db.Query("SELECT * FROM faqs WHERE costumer_id = $1 ORDER BY id ASC", id)
+	rows, err := db.Query("SELECT * FROM faqs WHERE customer_id = $1 ORDER BY id ASC", id)
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -142,7 +142,7 @@ func UpdateFaq(c *gin.Context) {
 	}
 
 	// Executar a consulta SQL para atualizar o FAQ
-	_, err = db.Exec("UPDATE faqs SET costumer_id = $1, question = $2, answer = $3, prompt = $4, embedding = $5 WHERE id = $6",
+	_, err = db.Exec("UPDATE faqs SET customer_id = $1, question = $2, answer = $3, prompt = $4, embedding = $5 WHERE id = $6",
 		faq.CustomerId, faq.Question, faq.Answer, faq.Embedding, faq.ID)
 
 	if err != nil {

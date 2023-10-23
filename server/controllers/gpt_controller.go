@@ -22,25 +22,25 @@ func GPTHandler(c *gin.Context) {
 		})
 		return
 	}
-	var Costumer models.Customer
+	var Customer models.Customer
 
 	Bot := bots.ExampleBot{}
-	err = db.First(&Costumer).Error
+	err = db.First(&Customer).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
-			"error": "cannot retrieve Costumer: " + err.Error(),
+			"error": "cannot retrieve Customer: " + err.Error(),
 		})
 
 		return
 	}
 	payloadMessage := models.Message{
-		WidReceiver: Costumer.Wid,
+		WidReceiver: Customer.Wid,
 		WidSender:   requestPayload.Messages[len(requestPayload.Messages)-1].From,
 		Message:     requestPayload.Messages[len(requestPayload.Messages)-1].Text.Body,
 		ProcessedAt: true,
 	}
-	response, err := pipelines.ChainProcessGPT(Bot, Costumer, &payloadMessage)
+	response, err := pipelines.ChainProcessGPT(Bot, Customer, &payloadMessage)
 	if err != nil {
 		c.JSON(400, "Erro GPT Pipeline")
 	}
@@ -73,14 +73,14 @@ func MetaGPTHandler(c *gin.Context) {
 		})
 		return
 	}
-	var Costumer models.Customer
+	var Customer models.Customer
 
 	Bot := bots.ExampleBot{}
-	err = db.First(&Costumer).Error
+	err = db.First(&Customer).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
-			"error": "cannot retrieve Costumer: " + err.Error(),
+			"error": "cannot retrieve Customer: " + err.Error(),
 		})
 
 		return
@@ -90,12 +90,12 @@ func MetaGPTHandler(c *gin.Context) {
 
 		responseMessages := requestPayload.Entry[0].Changes[0].Value.Messages
 		payloadMessage := models.Message{
-			WidReceiver: Costumer.Wid,
+			WidReceiver: Customer.Wid,
 			WidSender:   responseMessages[0].From,
 			Message:     responseMessages[0].Text.Body,
 			ProcessedAt: true,
 		}
-		response, err := pipelines.ChainProcessGPT(Bot, Costumer, &payloadMessage)
+		response, err := pipelines.ChainProcessGPT(Bot, Customer, &payloadMessage)
 		if err != nil {
 			c.JSON(400, "Erro GPT Pipeline:"+err.Error())
 		}

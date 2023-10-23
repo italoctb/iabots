@@ -109,7 +109,7 @@ func GetRoleMessagesFromFaq(c models.Customer, message models.Message) []RoleMes
 	return roleMessages
 }
 
-func GetRoleMessagesFromCostumer(c models.Customer, message models.Message) []RoleMessage {
+func GetRoleMessagesFromCustomer(c models.Customer, message models.Message) []RoleMessage {
 	db := database.GetDatabase()
 	var roleMessages []RoleMessage
 	var customerRoleMessages []models.CustomerRoleMessage
@@ -132,7 +132,7 @@ func GetRoleMessages(b bots.Bot, c models.Customer, userNumber string, message m
 	session := b.GetSession(c.Wid, userNumber)
 	//Adicionar a lista roleMessages o retorno da função GetRoleMessagesFromFaq
 	roleMessages = append(roleMessages, GetRoleMessagesFromFaq(c, message)...)
-	roleMessages = append(roleMessages, GetRoleMessagesFromCostumer(c, message)...)
+	roleMessages = append(roleMessages, GetRoleMessagesFromCustomer(c, message)...)
 
 	fmt.Println("Iniciando busca de mensagens da sessão...")
 	db.Where("session_id = ?", session.ID).Find(&messages)
