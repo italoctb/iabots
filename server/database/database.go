@@ -2,25 +2,31 @@ package database
 
 import (
 	"app/server/database/migrations"
+	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 	"os"
 	"time"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 var db *gorm.DB
+
+var dbSql *sql.DB
 
 func StartDB() {
 
 	uri := os.Getenv("DATABASE_URL")
 	var database *gorm.DB
+	var databaseSql *sql.DB
 	var err error
+	var errSql error
 	if uri != "" {
-		fmt.Printf(uri)
+		fmt.Print(uri)
 		database, err = gorm.Open(postgres.Open(uri), &gorm.Config{})
+		databaseSql, errSql = sql.Open("postgres", uri)
 	} else {
 		port := os.Getenv("DATABASE_PORT")
 		url := os.Getenv("DATABASE_HOST")
@@ -28,8 +34,13 @@ func StartDB() {
 		password := os.Getenv("DATABASE_PASSWORD")
 		dbname := os.Getenv("DATABASE_NAME")
 		str := "host=" + url + " port=" + port + " user=" + user + " dbname=" + dbname + " sslmode=disable password=" + password
-		fmt.Printf(str)
+		fmt.Print(str)
 		database, err = gorm.Open(postgres.Open(str), &gorm.Config{})
+		databaseSql, errSql = sql.Open("postgres", str)
+	}
+
+	if errSql != nil {
+		log.Fatal("errorSql: ", errSql)
 	}
 
 	if err != nil {
@@ -37,6 +48,7 @@ func StartDB() {
 	}
 
 	db = database
+	dbSql = databaseSql
 
 	config, _ := db.DB()
 
@@ -48,4 +60,8 @@ func StartDB() {
 
 func GetDatabase() *gorm.DB {
 	return db
+}
+
+func GetDatabaseSql() *sql.DB {
+	return dbSql
 }
