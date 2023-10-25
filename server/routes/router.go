@@ -58,7 +58,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			sessions.DELETE("/:id", controllers.DeleteSession)
 			sessions.DELETE("/deleteall", controllers.DeleteAllSessions)
 		}
-		Costumer := main.Group("costumer")
+		Costumer := main.Group("customer")
 		{
 			Costumer.GET("/:id", controllers.ShowCostumer)
 			Costumer.GET("/", controllers.ShowCostumers)
@@ -66,12 +66,17 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			Costumer.PUT("/:id", controllers.UpdateCostumer)
 			Costumer.DELETE("/:id", controllers.DeleteCostumer)
 			Costumer.DELETE("/deleteall", controllers.DeleteAllCostumers)
+			Costumer.POST("/gpt", controllers.CreateCustomerGPTConfig)
+			Costumer.PUT("/gpt", controllers.UpdateCustomerGPTConfig)
 		}
 		Faq := main.Group("faq")
 		{
 			Faq.GET("/:id", controllers.ShowFaqsFromCostumer)
 			Faq.GET("/", controllers.ShowFaqs)
 			Faq.POST("/", controllers.CreateFaq)
+			Faq.POST("/search", controllers.SearchFaqByEmbedding)
+			Faq.POST("/gpt", controllers.GPTWithFaqs)
+
 			Faq.PUT("/:id", controllers.UpdateFaq)
 			Faq.DELETE("/:id", controllers.DeleteFaq)
 			Faq.DELETE("/deleteall", controllers.DeleteAllFaqs)

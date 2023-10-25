@@ -13,4 +13,6 @@ func RunMigrations(db *gorm.DB) {
 	db.AutoMigrate(models.Option{})
 	db.AutoMigrate(models.Session{})
 	db.AutoMigrate(models.CustomerRoleMessage{})
+	db.AutoMigrate(models.Faq{})
+	db.AutoMigrate(models.ChatGPTConfig{})
 }
