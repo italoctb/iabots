@@ -122,3 +122,42 @@ func DeleteAllCostumers(c *gin.Context) {
 
 	c.Status(204)
 }
+
+func CreateCustomerGPTConfig(c *gin.Context) {
+	db := database.GetDatabase()
+
+	var config models.ChatGPTConfig
+
+	err := c.ShouldBindJSON(&config)
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot bind JSON: " + err.Error(),
+		})
+		return
+	}
+	err = db.Create(&config).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "cannot create Message: " + err.Error(),
+		})
+	}
+	c.JSON(200, config)
+}
+
+func UpdateCustomerGPTConfig(c *gin.Context) {
+	db := database.GetDatabase()
+	var config models.ChatGPTConfig
+	err := c.ShouldBindJSON(&config)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Cannot bind the JSON"})
+		return
+	}
+	err = db.Save(&config).Error
+	if err != nil {
+		c.JSON(400, gin.H{"error": "cannot update Message: " + err.Error()})
+	}
+
+	c.JSON(200, config)
+}
