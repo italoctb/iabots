@@ -66,12 +66,17 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			Customer.PUT("/:id", controllers.UpdateCustomer)
 			Customer.DELETE("/:id", controllers.DeleteCustomer)
 			Customer.DELETE("/deleteall", controllers.DeleteAllCustomers)
+			Customer.POST("/gpt", controllers.CreateCustomerGPTConfig)
+			Customer.PUT("/gpt", controllers.UpdateCustomerGPTConfig)
 		}
 		Faq := main.Group("faq")
 		{
 			Faq.GET("/:id", controllers.ShowFaqsFromCustomer)
 			Faq.GET("/", controllers.ShowFaqs)
 			Faq.POST("/", controllers.CreateFaq)
+			Faq.POST("/search", controllers.SearchFaqByEmbedding)
+			Faq.POST("/gpt", controllers.GPTWithFaqs)
+
 			Faq.PUT("/:id", controllers.UpdateFaq)
 			Faq.DELETE("/:id", controllers.DeleteFaq)
 			Faq.DELETE("/deleteall", controllers.DeleteAllFaqs)
