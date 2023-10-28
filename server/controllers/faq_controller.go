@@ -25,7 +25,7 @@ func ShowFaq(c *gin.Context) {
 	db := database.GetDatabaseSql()
 
 	var faq models.Faq
-	err = db.QueryRow("SELECT id, customer_id, question, answer, prompt, embedding FROM faqs WHERE id = $1", newID).Scan(&faq.ID, &faq.CustomerId, &faq.Question, &faq.Answer, &faq.Embedding)
+	err = db.QueryRow("SELECT id, customer_id, question, answer, prompt, embedding FROM faqs WHERE id = $1", newID).Scan(&faq.ID, &faq.CustomerId, &faq.Question, &faq.Answer)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -62,7 +62,7 @@ func CreateFaq(c *gin.Context) {
 	}
 
 	payload.ID, _ = uuid.NewV7()
-	payload.Embedding = emb
+	//payload.Embedding = emb
 
 	sql := fmt.Sprintln(`INSERT INTO faqs
 	(id, customer_id, question, answer, vector)
@@ -240,7 +240,7 @@ func ShowFaqsFromCustomer(c *gin.Context) {
 	defer rows.Close()
 	for rows.Next() {
 		var faq models.Faq
-		err = rows.Scan(&faq.ID, &faq.CustomerId, &faq.Question, &faq.Answer, &faq.Embedding)
+		err = rows.Scan(&faq.ID, &faq.CustomerId, &faq.Question, &faq.Answer) //&faq.Embedding)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": "Error scanning FAQ: " + err.Error(),
@@ -265,7 +265,7 @@ func UpdateFaq(c *gin.Context) {
 
 	// Executar a consulta SQL para atualizar o FAQ
 	_, err = db.Exec("UPDATE faqs SET customer_id = $1, question = $2, answer = $3, prompt = $4, embedding = $5 WHERE id = $6",
-		faq.CustomerId, faq.Question, faq.Answer, faq.Embedding, faq.ID)
+		faq.CustomerId, faq.Question, faq.Answer, faq.ID)
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot update FAQ: " + err.Error()})

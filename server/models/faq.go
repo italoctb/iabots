@@ -15,7 +15,6 @@ type Faq struct {
 	CustomerId int       `json:"customer_id"`
 	Question   string    `json:"question"`
 	Answer     string    `json:"answer"`
-	Embedding  []float32 `json:"embedding,omitempty"`
 	Vector     Vector    `json:"vector,omitempty" gorm:"type:double precision[]"`
 }
 

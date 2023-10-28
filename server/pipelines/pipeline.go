@@ -90,7 +90,7 @@ func GetRoleMessagesFromFaq(c models.Customer, message models.Message) []RoleMes
 
 	for rows.Next() {
 		var faq models.Faq
-		err = rows.Scan(&faq.ID, &faq.Question, &faq.Answer, &faq.Embedding, &faq.CustomerId)
+		err = rows.Scan(&faq.ID, &faq.Question, &faq.Answer, &faq.CustomerId)
 		fmt.Println("FAQ: " + faq.Question)
 		if err != nil {
 
