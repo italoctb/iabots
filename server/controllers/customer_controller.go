@@ -154,7 +154,7 @@ func UpdateCustomerGPTConfig(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Cannot bind the JSON"})
 		return
 	}
-	err = db.Save(&config).Error
+	err = db.Where("customer_id = ?", config.CustomerID).Save(&config).Error
 	if err != nil {
 		c.JSON(400, gin.H{"error": "cannot update Message: " + err.Error()})
 	}
