@@ -173,7 +173,7 @@ func GPTWithFaqs(c *gin.Context) {
 	}
 
 	faqRepo := models.NewFAQRepo(db)
-	faqs, err := faqRepo.SearchByEmbeddings(payload.CustomerId, emb, 8)
+	faqs, err := faqRepo.SearchByEmbeddings(payload.CustomerId, emb, 5)
 	if err != nil {
 		c.JSON(400, gin.H{
 			"error": "Cannot GPT respond: " + err.Error(),
