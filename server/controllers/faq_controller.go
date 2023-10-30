@@ -277,18 +277,11 @@ func UpdateFaq(c *gin.Context) {
 
 func DeleteFaq(c *gin.Context) {
 	id := c.Param("id")
-	newID, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(400, gin.H{
-			"error": "ID has to be an integer",
-		})
-		return
-	}
 
 	db := database.GetDatabaseSql()
 
 	// Executar a consulta SQL para excluir o FAQ
-	_, err = db.Exec("DELETE FROM faqs WHERE id = $1", newID)
+	_, err := db.Exec("DELETE FROM faqs WHERE id = $1", id)
 
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Cannot find the ID: " + err.Error()})
