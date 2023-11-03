@@ -4,8 +4,8 @@ setup:
       as: DATABASE
 build:
   docker:
-    web: Dockerfile
-    client: infra/dockers/react.dev.Dockerfile
+    faq: infra/dockers/whatsapp.Dockerfile
+    whatsapp: infra/dockers/whatsapp.Dockerfile
 
   config:
     NODE_ENV: production
