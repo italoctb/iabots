@@ -1,7 +1,7 @@
 FROM golang
 
 WORKDIR /src
-COPY ../../whatsapp-client .
+COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o whatsapp-client .
 
