@@ -7,6 +7,7 @@ require go.mau.fi/whatsmeow v0.0.0-20231022190735-0c67ac8e0bdd
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/mdp/qrterminal v1.0.1

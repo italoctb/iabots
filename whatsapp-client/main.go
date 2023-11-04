@@ -12,6 +12,7 @@ import (
 
 	"whatsapp_client/models"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/mdp/qrterminal"
@@ -95,6 +96,7 @@ func dbConn() string {
 }
 
 func main() {
+	godotenv.Load()
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
 	container, err := sqlstore.New("postgres", dbConn(), dbLog)
