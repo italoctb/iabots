@@ -4,8 +4,12 @@ setup:
       as: DATABASE
 build:
   docker:
-    faq: infra/dockers/server.Dockerfile
-    whatsapp: infra/dockers/whatsapp.Dockerfile
+    faq: 
+      context: . 
+      file: infra/dockers/server.Dockerfile
+    whatsapp: 
+      context: .
+      file: infra/dockers/whatsapp.Dockerfile
 
   config:
     NODE_ENV: production
