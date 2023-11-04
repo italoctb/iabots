@@ -2,7 +2,7 @@ FROM golang
 
 COPY /faq-server /src
 WORKDIR /src
-COPY /faq-server .
+COPY ../../faq-server .
 RUN CGO_ENABLED=0 GOOS=linux go build -o whatsapp-api-pv .
 
 FROM alpine:latest AS production
