@@ -44,10 +44,14 @@ func eventHandler(evt interface{}) {
 			}
 
 			if text != "" {
-				//msgID := client.GenerateMessageID()
+				msgID := client.GenerateMessageID()
+				//client.SendMediaMessage(v.Info.Sender, types.MessageTypeText, text, msgID)
+
 				client.SendMessage(context.Background(), v.Info.Sender, &waProto.Message{
-					Conversation: proto.String(text),
-				})
+					Conversation: proto.String(text)}, whatsmeow.SendRequestExtra{
+					ID: msgID,
+				},
+				)
 			}
 		}
 	}
