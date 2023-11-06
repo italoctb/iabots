@@ -36,7 +36,11 @@ func eventHandler(evt interface{}) {
 			// Chamar a função para obter o texto da resposta
 			//client.SendChatPresence(v.Info.Sender, types.ChatPresence(t), types.ChatPresenceMediaText)
 			client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
-			text, err := getResponseTextWithRetry(v.Message.GetConversation())
+			msg := v.Message.GetConversation()
+			if msg == "" {
+				msg = v.Message.ExtendedTextMessage.GetText()
+			}
+			text, err := getResponseTextWithRetry(msg)
 			fmt.Println("Texto da resposta:", text)
 			if err != nil {
 				fmt.Println("Erro ao obter o texto da resposta:", err)
