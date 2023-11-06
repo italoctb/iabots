@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"whatsapp_client/models"
 
@@ -59,6 +60,8 @@ func getResponseTextWithRetry(message string) (string, error) {
 		if err == nil && responseText != "" {
 			return responseText, err
 		}
+
+		time.Sleep(5 * time.Second)
 	}
 	return "Desculpas! Poderia repetir?", nil
 }
