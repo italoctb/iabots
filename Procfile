@@ -1,2 +1,2 @@
-web: ./faq-server
+web: ./whatsapp-api-pv
 whatsapp-client: ./whatsapp-client
