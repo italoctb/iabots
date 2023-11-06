@@ -22,7 +22,7 @@ func NewServer() Server {
 		port = "5001"
 	}
 	fmt.Println("Porta: ", port)
-	return Server{port: port, server: gin.Default()}
+	return Server{port: "8080", server: gin.Default()}
 }
 
 func (s *Server) Run() {
