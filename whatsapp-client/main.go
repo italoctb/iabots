@@ -94,6 +94,10 @@ func getResponseText(message string) (string, error) {
 		return "", err
 	}
 
+	if jsonResponse.Text == "" {
+		return "Desculpas! Poderia repetir?", nil
+	}
+
 	return jsonResponse.Text, nil
 }
 
