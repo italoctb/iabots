@@ -4,9 +4,10 @@ import (
 	"app/server/routes"
 	"app/server/ssr"
 
-	"github.com/gin-gonic/gin"
 	"log"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
@@ -16,6 +17,9 @@ type Server struct {
 
 func NewServer() Server {
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 	return Server{port: port, server: gin.Default()}
 }
 
