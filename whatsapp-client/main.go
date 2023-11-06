@@ -36,6 +36,7 @@ func eventHandler(evt interface{}) {
 			//client.SendChatPresence(v.Info.Sender, types.ChatPresence(t), types.ChatPresenceMediaText)
 			client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
 			text, err := getResponseText(v.Message.GetConversation())
+			fmt.Println("Texto da resposta:", text)
 			if err != nil {
 				fmt.Println("Erro ao obter o texto da resposta:", err)
 				return
