@@ -1,1 +1,2 @@
-web: bin/whatsapp
+web: ./faq-server
+whatsapp-client: ./whatsapp-client
