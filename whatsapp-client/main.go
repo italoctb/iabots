@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"whatsapp_client/models"
@@ -57,7 +56,7 @@ func getResponseTextWithRetry(message string) (string, error) {
 	for i := 1; i <= 5; i++ {
 		fmt.Println("Tentativa: ", i)
 		responseText, err := getResponseText(message)
-		if err == nil || !strings.Contains(err.Error(), "400 Bad Request") || responseText != "" {
+		if err == nil && responseText != "" {
 			return responseText, err
 		}
 	}
