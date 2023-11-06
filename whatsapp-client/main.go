@@ -55,8 +55,9 @@ func eventHandler(evt interface{}) {
 
 func getResponseTextWithRetry(message string) (string, error) {
 	for i := 1; i <= 5; i++ {
+		fmt.Println("Tentativa: ", i)
 		responseText, err := getResponseText(message)
-		if err == nil || !strings.Contains(err.Error(), "400 Bad Request") {
+		if err == nil || !strings.Contains(err.Error(), "400 Bad Request") || responseText != "" {
 			return responseText, err
 		}
 	}
@@ -94,9 +95,9 @@ func getResponseText(message string) (string, error) {
 		return "", err
 	}
 
-	if jsonResponse.Text == "" {
-		return "Desculpas! Poderia repetir?", nil
-	}
+	// if jsonResponse.Text == "" {
+	// 	return "Desculpas! Poderia repetir?", nil
+	// }
 
 	return jsonResponse.Text, nil
 }
