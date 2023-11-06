@@ -4,7 +4,7 @@ setup:
       as: DATABASE
 build:
   docker:
-    faq: faq-server/Dockerfile
+    web: faq-server/Dockerfile
     whatsapp: whatsapp-client/Dockerfile
 
   config:
