@@ -5,7 +5,7 @@ setup:
 build:
   docker:
     web: faq-server/Dockerfile
-    whatsapp: whatsapp-client/Dockerfile
+    web: whatsapp-client/Dockerfile
 
   config:
     NODE_ENV: production
