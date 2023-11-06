@@ -3,6 +3,7 @@ package server
 import (
 	"app/server/routes"
 	"app/server/ssr"
+	"fmt"
 
 	"log"
 	"os"
@@ -18,8 +19,9 @@ type Server struct {
 func NewServer() Server {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "5001"
 	}
+	fmt.Println("Porta: ", port)
 	return Server{port: port, server: gin.Default()}
 }
 
