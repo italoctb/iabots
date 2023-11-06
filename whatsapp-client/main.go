@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"whatsapp_client/models"
@@ -35,7 +36,7 @@ func eventHandler(evt interface{}) {
 			// Chamar a função para obter o texto da resposta
 			//client.SendChatPresence(v.Info.Sender, types.ChatPresence(t), types.ChatPresenceMediaText)
 			client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
-			text, err := getResponseText(v.Message.GetConversation())
+			text, err := getResponseTextWithRetry(v.Message.GetConversation())
 			fmt.Println("Texto da resposta:", text)
 			if err != nil {
 				fmt.Println("Erro ao obter o texto da resposta:", err)
@@ -50,6 +51,16 @@ func eventHandler(evt interface{}) {
 			}
 		}
 	}
+}
+
+func getResponseTextWithRetry(message string) (string, error) {
+	for i := 1; i <= 5; i++ {
+		responseText, err := getResponseText(message)
+		if err == nil || !strings.Contains(err.Error(), "400 Bad Request") {
+			return responseText, err
+		}
+	}
+	return "Desculpas! Poderia repetir?", nil
 }
 
 func getResponseText(message string) (string, error) {
