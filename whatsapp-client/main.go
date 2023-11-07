@@ -101,14 +101,13 @@ func GPTResponseText(messages []models.RoleMessage, ctx context.Context, n int) 
 		return "", err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", "https://whatsapp-api-pv.herokuapp.com/api/v1/faq/gpt", bytes.NewBuffer(payloadJSON))
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
 	var response *http.Response
 	for i := 0; i < n; i++ {
+		req, err := http.NewRequestWithContext(ctx, "POST", "https://whatsapp-api-pv.herokuapp.com/api/v1/faq/gpt", bytes.NewBuffer(payloadJSON))
+		if err != nil {
+			return "", err
+		}
+		req.Header.Set("Content-Type", "application/json")
 		response, err = http.DefaultClient.Do(req)
 		if err == nil && response.StatusCode == http.StatusOK {
 			break
