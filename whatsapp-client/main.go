@@ -134,6 +134,10 @@ func addMessageToHistory(jwid string, message models.RoleMessage) {
 // uma funçao que retorne as n ultimos elementos da lista de roleMensagens do historyMessages cujo a chave é o jwid
 
 func getMessagesFromHistory(jwid string, n int) []models.RoleMessage {
+	numRecords := len(historyMessages[jwid])
+	if numRecords <= n {
+		return historyMessages[jwid]
+	}
 	return historyMessages[jwid][len(historyMessages[jwid])-n:]
 }
 
