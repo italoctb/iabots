@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"os"
 	"os/signal"
@@ -46,7 +47,24 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 			msg += v.Message.ExtendedTextMessage.GetText()
 		}
 		fmt.Println("Numero do usuario:", v.Info.Sender.User)
-		text, err := getResponseTextWithRetry(msg, v.Info.Sender.User)
+		user := getUser(v.Info.Sender.User)
+		user.addMessageToHistory(models.RoleMessage{
+			Role:    "user",
+			Content: msg,
+		})
+		if user.context != nil {
+			user.cancel()
+			user.context, user.cancel = context.WithCancel(context.Background())
+		}
+		if user.context == nil {
+			user.context, user.cancel = context.WithCancel(context.Background())
+		}
+		text, err := GPTResponseText(user.historyMessages, user.context, 5)
+		user.context = nil
+		user.addMessageToHistory(models.RoleMessage{
+			Role:    "assistant",
+			Content: text,
+		})
 		fmt.Println("Texto da resposta:", text)
 		if err != nil {
 			fmt.Println("Erro ao obter o texto da resposta:", err)
@@ -60,28 +78,22 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 	}
 }
 
-func getResponseTextWithRetry(message string, jwid string) (string, error) {
-	for i := 1; i <= 5; i++ {
-		fmt.Println("Tentativa: ", i)
-		responseText, err := getResponseText(message, jwid)
-		if err == nil && responseText != "" {
-			return responseText, err
-		}
-		time.Sleep(5 * time.Second)
-	}
-	return "Desculpas! Poderia repetir?", nil
-}
+// func getResponseTextWithRetry(message string, jwid string) (string, error) {
+// 	for i := 1; i <= 5; i++ {
+// 		fmt.Println("Tentativa: ", i)
+// 		responseText, err := getResponseText(message, jwid)
+// 		if err == nil && responseText != "" {
+// 			return responseText, err
+// 		}
+// 		time.Sleep(5 * time.Second)
+// 	}
+// 	return "Desculpas! Poderia repetir?", nil
+// }
 
-func getResponseText(message string, jwid string) (string, error) {
-	currentRoleMessage := models.RoleMessage{
-		Role:    "user",
-		Content: message,
-	}
-	addMessageToHistory(jwid, currentRoleMessage)
-
+func GPTResponseText(messages []models.RoleMessage, ctx context.Context, n int) (string, error) {
 	payload := models.IabotsPayload{
 		CustomerID: 2,
-		Messages:   getMessagesFromHistory(jwid),
+		Messages:   messages,
 	}
 
 	payloadJSON, err := json.Marshal(payload)
@@ -89,7 +101,20 @@ func getResponseText(message string, jwid string) (string, error) {
 		return "", err
 	}
 
-	response, err := http.Post("https://whatsapp-api-pv.herokuapp.com/api/v1/faq/gpt", "application/json", bytes.NewBuffer(payloadJSON))
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://whatsapp-api-pv.herokuapp.com/api/v1/faq/gpt", bytes.NewBuffer(payloadJSON))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	var response *http.Response
+	for i := 0; i < n; i++ {
+		response, err = http.DefaultClient.Do(req)
+		if err == nil && response.StatusCode == http.StatusOK {
+			break
+		}
+		time.Sleep(time.Duration(math.Pow(2, float64(i))) * time.Second)
+	}
 	if err != nil {
 		return "", err
 	}
@@ -106,13 +131,6 @@ func getResponseText(message string, jwid string) (string, error) {
 
 	text := jsonResponse.Text
 
-	newRoleMessage := models.RoleMessage{
-		Role:    "assistant",
-		Content: text,
-	}
-
-	addMessageToHistory(jwid, newRoleMessage)
-
 	return text, nil
 }
 
@@ -121,25 +139,34 @@ func dbConn() string {
 }
 
 var (
-	historyMessages = make(map[string][]models.RoleMessage)
-	mu              sync.Mutex
-	maxNumMessages  = 20
+	users          = make(map[string]*UserManager)
+	mu             sync.Mutex
+	maxNumMessages = 20
 )
 
-func addMessageToHistory(jwid string, message models.RoleMessage) {
-	mu.Lock()
-	defer mu.Unlock()
-	if historyMessages[jwid] == nil {
-		historyMessages[jwid] = make([]models.RoleMessage, 0)
-	}
-	if len(historyMessages[jwid]) >= maxNumMessages {
-		historyMessages[jwid] = historyMessages[jwid][1:]
-	}
-	historyMessages[jwid] = append(historyMessages[jwid], message)
+type UserManager struct {
+	historyMessages []models.RoleMessage
+	context         context.Context
+	cancel          context.CancelFunc
 }
 
-func getMessagesFromHistory(jwid string) []models.RoleMessage {
-	return historyMessages[jwid]
+func getUser(jwid string) *UserManager {
+	mu.Lock()
+	defer mu.Unlock()
+	if users[jwid] == nil {
+		users[jwid] = &UserManager{}
+	}
+	return users[jwid]
+}
+
+func (u *UserManager) addMessageToHistory(message models.RoleMessage) {
+	if u.historyMessages == nil {
+		u.historyMessages = make([]models.RoleMessage, 0)
+	}
+	if len(u.historyMessages) >= maxNumMessages {
+		u.historyMessages = u.historyMessages[1:]
+	}
+	u.historyMessages = append(u.historyMessages, message)
 }
 
 func main() {
@@ -186,7 +213,7 @@ func main() {
 	}
 
 	// Listen to Ctrl+C (you can also do something else that prevents the program from exiting)
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	disconnected := <-c // Blocks until we get a disconnect signal
 	if disconnected != nil {
