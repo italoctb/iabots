@@ -60,7 +60,7 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 			user.context, user.cancel = context.WithCancel(context.Background())
 		}
 		text, err := GPTResponseText(user.historyMessages, user.context, 5)
-		user.context = nil
+
 		user.addMessageToHistory(models.RoleMessage{
 			Role:    "assistant",
 			Content: text,
@@ -71,10 +71,11 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 		}
 
 		if text != "" {
-			wpp.Client.SendMessage(context.Background(), v.Info.Sender, &waProto.Message{
+			wpp.Client.SendMessage(user.context, v.Info.Sender, &waProto.Message{
 				Conversation: &text},
 			)
 		}
+		user.context = nil
 	}
 }
 
