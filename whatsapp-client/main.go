@@ -24,39 +24,38 @@ import (
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
 	waLog "go.mau.fi/whatsmeow/util/log"
-	"google.golang.org/protobuf/proto"
 )
 
-var client *whatsmeow.Client
+type Wpp struct {
+	Client *whatsmeow.Client
+}
 
-func eventHandler(evt interface{}) {
+func NewWpp(client *whatsmeow.Client) *Wpp {
+	app := &Wpp{Client: client}
+	client.AddEventHandler(app.EventHandler)
+	return app
+}
+
+func (wpp *Wpp) EventHandler(evt interface{}) {
 	switch v := evt.(type) {
 	case *events.Message:
 		fmt.Println("Received a message!", v.Message.GetConversation())
-		if client != nil {
-			client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
-			msg := v.Message.GetConversation()
-			if v.Message.ExtendedTextMessage != nil {
-				msg += v.Message.ExtendedTextMessage.GetText()
-			}
-			fmt.Println("Numero do usuario:", v.Info.Sender.User)
-			text, err := getResponseTextWithRetry(msg, v.Info.Sender.User)
-			fmt.Println("Texto da resposta:", text)
-			if err != nil {
-				fmt.Println("Erro ao obter o texto da resposta:", err)
-				return
-			}
+		wpp.Client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
+		msg := v.Message.GetConversation()
+		if v.Message.ExtendedTextMessage != nil {
+			msg += v.Message.ExtendedTextMessage.GetText()
+		}
+		fmt.Println("Numero do usuario:", v.Info.Sender.User)
+		text, err := getResponseTextWithRetry(msg, v.Info.Sender.User)
+		fmt.Println("Texto da resposta:", text)
+		if err != nil {
+			fmt.Println("Erro ao obter o texto da resposta:", err)
+		}
 
-			if text != "" {
-				msgID := client.GenerateMessageID()
-				//client.SendMediaMessage(v.Info.Sender, types.MessageTypeText, text, msgID)
-
-				client.SendMessage(context.Background(), v.Info.Sender, &waProto.Message{
-					Conversation: proto.String(text)}, whatsmeow.SendRequestExtra{
-					ID: msgID,
-				},
-				)
-			}
+		if text != "" {
+			wpp.Client.SendMessage(context.Background(), v.Info.Sender, &waProto.Message{
+				Conversation: &text},
+			)
 		}
 	}
 }
@@ -157,9 +156,9 @@ func main() {
 		panic(err)
 	}
 	clientLog := waLog.Stdout("Client", "DEBUG", true)
-	client = whatsmeow.NewClient(deviceStore, clientLog)
-	client.AddEventHandler(eventHandler)
-	client.SendPresence(types.PresenceAvailable)
+	client := whatsmeow.NewClient(deviceStore, clientLog)
+	wpp := NewWpp(client)
+	wpp.Client.SendPresence(types.PresenceAvailable)
 
 	if client.Store.ID == nil {
 		// No ID stored, new login
