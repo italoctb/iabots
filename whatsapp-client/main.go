@@ -40,7 +40,7 @@ func eventHandler(evt interface{}) {
 			if msg == "" {
 				msg = v.Message.ExtendedTextMessage.GetText()
 			}
-			text, err := getResponseTextWithRetry(msg)
+			text, err := getResponseTextWithRetry(msg, v.Info.Sender.String())
 			fmt.Println("Texto da resposta:", text)
 			if err != nil {
 				fmt.Println("Erro ao obter o texto da resposta:", err)
@@ -61,10 +61,10 @@ func eventHandler(evt interface{}) {
 	}
 }
 
-func getResponseTextWithRetry(message string) (string, error) {
+func getResponseTextWithRetry(message string, jwid string) (string, error) {
 	for i := 1; i <= 5; i++ {
 		fmt.Println("Tentativa: ", i)
-		responseText, err := getResponseText(message)
+		responseText, err := getResponseText(message, jwid)
 		if err == nil && responseText != "" {
 			return responseText, err
 		}
@@ -74,15 +74,16 @@ func getResponseTextWithRetry(message string) (string, error) {
 	return "Desculpas! Poderia repetir?", nil
 }
 
-func getResponseText(message string) (string, error) {
+func getResponseText(message string, jwid string) (string, error) {
+	currentRoleMessage := models.RoleMessage{
+		Role:    "user",
+		Content: message,
+	}
+	addMessageToHistory(jwid, currentRoleMessage)
+
 	payload := models.IabotsPayload{
 		CustomerID: 2,
-		Messages: []models.RoleMessage{
-			{
-				Role:    "user",
-				Content: message,
-			},
-		},
+		Messages:   getMessagesFromHistory(jwid, 10),
 	}
 
 	payloadJSON, err := json.Marshal(payload)
@@ -105,15 +106,34 @@ func getResponseText(message string) (string, error) {
 		return "", err
 	}
 
-	// if jsonResponse.Text == "" {
-	// 	return "Desculpas! Poderia repetir?", nil
-	// }
+	text := jsonResponse.Text
 
-	return jsonResponse.Text, nil
+	newRoleMessage := models.RoleMessage{
+		Role:    "assistant",
+		Content: text,
+	}
+
+	addMessageToHistory(jwid, newRoleMessage)
+
+	return text, nil
 }
 
 func dbConn() string {
 	return os.Getenv("DATABASE_URL")
+}
+
+// um map historyMessages com chave sendo o numero do telefone e o valor sendo uma lista Role Messages
+var historyMessages = make(map[string][]models.RoleMessage)
+
+// uma funçao que adicione uma mensagem na lista de mensagens do historyMessages cujo a chave é o jwid
+func addMessageToHistory(jwid string, message models.RoleMessage) {
+	historyMessages[jwid] = append(historyMessages[jwid], message)
+}
+
+// uma funçao que retorne as n ultimos elementos da lista de roleMensagens do historyMessages cujo a chave é o jwid
+
+func getMessagesFromHistory(jwid string, n int) []models.RoleMessage {
+	return historyMessages[jwid][len(historyMessages[jwid])-n:]
 }
 
 func main() {
