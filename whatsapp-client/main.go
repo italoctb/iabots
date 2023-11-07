@@ -40,7 +40,8 @@ func eventHandler(evt interface{}) {
 			if msg == "" {
 				msg = v.Message.ExtendedTextMessage.GetText()
 			}
-			text, err := getResponseTextWithRetry(msg, v.Info.Sender.String())
+			fmt.Println("Numero do usuario:", v.Info.Sender.User)
+			text, err := getResponseTextWithRetry(msg, v.Info.Sender.User)
 			fmt.Println("Texto da resposta:", text)
 			if err != nil {
 				fmt.Println("Erro ao obter o texto da resposta:", err)
