@@ -34,8 +34,6 @@ func eventHandler(evt interface{}) {
 	case *events.Message:
 		fmt.Println("Received a message!", v.Message.GetConversation())
 		if client != nil {
-			// Chamar a função para obter o texto da resposta
-			//client.SendChatPresence(v.Info.Sender, types.ChatPresence(t), types.ChatPresenceMediaText)
 			client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
 			msg := v.Message.GetConversation()
 			if v.Message.ExtendedTextMessage != nil {
@@ -161,6 +159,7 @@ func main() {
 	clientLog := waLog.Stdout("Client", "DEBUG", true)
 	client = whatsmeow.NewClient(deviceStore, clientLog)
 	client.AddEventHandler(eventHandler)
+	client.SendPresence(types.PresenceAvailable)
 
 	if client.Store.ID == nil {
 		// No ID stored, new login
@@ -190,7 +189,10 @@ func main() {
 	// Listen to Ctrl+C (you can also do something else that prevents the program from exiting)
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	<-c
+	disconnected := <-c // Blocks until we get a disconnect signal
+	if disconnected != nil {
+		client.SendPresence(types.PresenceUnavailable)
+	}
 
 	client.Disconnect()
 }
