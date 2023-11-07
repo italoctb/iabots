@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -37,8 +38,8 @@ func eventHandler(evt interface{}) {
 			//client.SendChatPresence(v.Info.Sender, types.ChatPresence(t), types.ChatPresenceMediaText)
 			client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
 			msg := v.Message.GetConversation()
-			if msg == "" {
-				msg = v.Message.ExtendedTextMessage.GetText()
+			if v.Message.ExtendedTextMessage != nil {
+				msg += v.Message.ExtendedTextMessage.GetText()
 			}
 			fmt.Println("Numero do usuario:", v.Info.Sender.User)
 			text, err := getResponseTextWithRetry(msg, v.Info.Sender.User)
@@ -69,7 +70,6 @@ func getResponseTextWithRetry(message string, jwid string) (string, error) {
 		if err == nil && responseText != "" {
 			return responseText, err
 		}
-
 		time.Sleep(5 * time.Second)
 	}
 	return "Desculpas! Poderia repetir?", nil
@@ -84,7 +84,7 @@ func getResponseText(message string, jwid string) (string, error) {
 
 	payload := models.IabotsPayload{
 		CustomerID: 2,
-		Messages:   getMessagesFromHistory(jwid, 10),
+		Messages:   getMessagesFromHistory(jwid),
 	}
 
 	payloadJSON, err := json.Marshal(payload)
@@ -123,22 +123,26 @@ func dbConn() string {
 	return os.Getenv("DATABASE_URL")
 }
 
-// um map historyMessages com chave sendo o numero do telefone e o valor sendo uma lista Role Messages
-var historyMessages = make(map[string][]models.RoleMessage)
+var (
+	historyMessages = make(map[string][]models.RoleMessage)
+	mu              sync.Mutex
+	maxNumMessages  = 20
+)
 
-// uma funçao que adicione uma mensagem na lista de mensagens do historyMessages cujo a chave é o jwid
 func addMessageToHistory(jwid string, message models.RoleMessage) {
+	mu.Lock()
+	defer mu.Unlock()
+	if historyMessages[jwid] == nil {
+		historyMessages[jwid] = make([]models.RoleMessage, 0)
+	}
+	if len(historyMessages[jwid]) >= maxNumMessages {
+		historyMessages[jwid] = historyMessages[jwid][1:]
+	}
 	historyMessages[jwid] = append(historyMessages[jwid], message)
 }
 
-// uma funçao que retorne as n ultimos elementos da lista de roleMensagens do historyMessages cujo a chave é o jwid
-
-func getMessagesFromHistory(jwid string, n int) []models.RoleMessage {
-	numRecords := len(historyMessages[jwid])
-	if numRecords <= n {
-		return historyMessages[jwid]
-	}
-	return historyMessages[jwid][len(historyMessages[jwid])-n:]
+func getMessagesFromHistory(jwid string) []models.RoleMessage {
+	return historyMessages[jwid]
 }
 
 func main() {
