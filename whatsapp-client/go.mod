@@ -14,6 +14,6 @@ require (
 	go.mau.fi/libsignal v0.1.0 // indirect
 	go.mau.fi/util v0.2.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.31.0 // indirect
 	rsc.io/qr v0.2.0 // indirect
 )

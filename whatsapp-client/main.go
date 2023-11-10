@@ -40,18 +40,29 @@ func NewWpp(client *whatsmeow.Client) *Wpp {
 func (wpp *Wpp) EventHandler(evt interface{}) {
 	switch v := evt.(type) {
 	case *events.Message:
-		fmt.Println("Received a message!", v.Message.GetConversation())
-		wpp.Client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
 		msg := v.Message.GetConversation()
 		if v.Message.ExtendedTextMessage != nil {
 			msg += v.Message.ExtendedTextMessage.GetText()
 		}
 		fmt.Println("Numero do usuario:", v.Info.Sender.User)
-		user := getUser(v.Info.Sender.User)
-		user.addMessageToHistory(models.RoleMessage{
-			Role:    "user",
-			Content: msg,
-		})
+		var user *UserManager
+		if v.Info.IsFromMe {
+			user = getUser(v.Info.Chat.User)
+			user.lastUserInteraction = time.Now()
+			user.addMessageToHistory(models.RoleMessage{
+				Role:    "assistant",
+				Content: msg,
+			})
+		} else {
+			fmt.Println("Received a message!", v.Message.GetConversation())
+			user = getUser(v.Info.Sender.User)
+			user.addMessageToHistory(models.RoleMessage{
+				Role:    "user",
+				Content: msg,
+			})
+
+		}
+
 		if user.context != nil {
 			user.cancel()
 			user.context, user.cancel = context.WithCancel(context.Background())
@@ -59,23 +70,28 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 		if user.context == nil {
 			user.context, user.cancel = context.WithCancel(context.Background())
 		}
-		text, err := GPTResponseText(user.historyMessages, user.context, 5)
 
-		user.addMessageToHistory(models.RoleMessage{
-			Role:    "assistant",
-			Content: text,
-		})
-		fmt.Println("Texto da resposta:", text)
-		if err != nil {
-			fmt.Println("Erro ao obter o texto da resposta:", err)
+		if user.lastUserInteraction.IsZero() || time.Since(user.lastUserInteraction) > 2*time.Minute {
+			wpp.Client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
+			text, err := GPTResponseText(user.historyMessages, user.context, 5)
+
+			user.addMessageToHistory(models.RoleMessage{
+				Role:    "assistant",
+				Content: text,
+			})
+			fmt.Println("Texto da resposta:", text)
+			if err != nil {
+				fmt.Println("Erro ao obter o texto da resposta:", err)
+			}
+
+			if text != "" {
+				go wpp.Client.SendMessage(user.context, v.Info.Sender, &waProto.Message{
+					Conversation: &text},
+				)
+			}
+			user.context = nil
 		}
 
-		if text != "" {
-			wpp.Client.SendMessage(user.context, v.Info.Sender, &waProto.Message{
-				Conversation: &text},
-			)
-		}
-		user.context = nil
 	}
 }
 
@@ -145,9 +161,10 @@ var (
 )
 
 type UserManager struct {
-	historyMessages []models.RoleMessage
-	context         context.Context
-	cancel          context.CancelFunc
+	historyMessages     []models.RoleMessage
+	context             context.Context
+	cancel              context.CancelFunc
+	lastUserInteraction time.Time
 }
 
 func getUser(jwid string) *UserManager {
