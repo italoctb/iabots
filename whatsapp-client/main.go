@@ -71,7 +71,7 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 			user.context, user.cancel = context.WithCancel(context.Background())
 		}
 
-		if user.lastUserInteraction.IsZero() || time.Since(user.lastUserInteraction) > 2*time.Minute {
+		if user.lastUserInteraction.IsZero() || time.Since(user.lastUserInteraction) > 2*time.Hour {
 			wpp.Client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
 			text, err := GPTResponseText(user.historyMessages, user.context, 5)
 
