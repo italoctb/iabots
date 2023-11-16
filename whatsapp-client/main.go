@@ -196,6 +196,7 @@ func main() {
 		clientId, _ = strconv.Atoi(arg)
 	}
 	godotenv.Load()
+	fmt.Printf("ENV: %+v\n", os.Environ())
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
 	container, err := sqlstore.New("postgres", dbConn(), dbLog)
@@ -203,13 +204,6 @@ func main() {
 		panic(err)
 	}
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
-	devices, err := container.GetAllDevices()
-	if err != nil {
-		panic(err)
-	}
-	for _, device := range devices {
-		fmt.Println("Device: %+v", device)
-	}
 	deviceStore, err := container.GetFirstDevice()
 	if err != nil {
 		panic(err)
