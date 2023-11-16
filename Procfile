@@ -1,2 +1,2 @@
 web: ./whatsapp-api-pv
-whatsapp-client: ./whatsapp-client
+whatsapp-client: env CLIENT_ID=2 ./whatsapp-client

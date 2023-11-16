@@ -1,7 +1,7 @@
 package models
 
 type IabotsPayload struct {
-	CustomerID uint          `json:"customer_id"`
+	CustomerID int           `json:"customer_id"`
 	Messages   []RoleMessage `json:"messages"`
 }
 

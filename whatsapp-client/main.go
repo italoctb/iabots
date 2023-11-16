@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -108,8 +109,15 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 // }
 
 func GPTResponseText(messages []models.RoleMessage, ctx context.Context, n int) (string, error) {
+	clientId := os.Getenv("CLIENT_ID")
+	clientInt, err := strconv.Atoi(clientId)
+	fmt.Println("Cliente ID:", clientId)
+	if err != nil {
+		return "", err
+	}
+
 	payload := models.IabotsPayload{
-		CustomerID: 2,
+		CustomerID: clientInt,
 		Messages:   messages,
 	}
 
