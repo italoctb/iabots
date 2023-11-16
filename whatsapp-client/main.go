@@ -191,9 +191,10 @@ func (u *UserManager) addMessageToHistory(message models.RoleMessage) {
 var clientId = 2
 
 func main() {
-	arg := os.Args[1]
-	clientId, _ = strconv.Atoi(arg)
-
+	if len(os.Args) > 1 {
+		arg := os.Args[1]
+		clientId, _ = strconv.Atoi(arg)
+	}
 	godotenv.Load()
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
