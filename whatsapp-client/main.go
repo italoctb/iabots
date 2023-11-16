@@ -203,6 +203,13 @@ func main() {
 		panic(err)
 	}
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
+	devices, err := container.GetAllDevices()
+	if err != nil {
+		panic(err)
+	}
+	for _, device := range devices {
+		fmt.Println("Device: %+v", device)
+	}
 	deviceStore, err := container.GetFirstDevice()
 	if err != nil {
 		panic(err)
