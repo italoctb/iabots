@@ -112,7 +112,7 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 func GPTResponseText(messages []models.RoleMessage, ctx context.Context, n int) (string, error) {
 
 	payload := models.IabotsPayload{
-		CustomerID: clientId,
+		CustomerID: currentEnv.Client,
 		Messages:   messages,
 	}
 
@@ -221,7 +221,6 @@ func main() {
 
 	godotenv.Load()
 	currentEnv = ExtractJidClient()
-	fmt.Printf("ENV: %+v\n", os.Environ())
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
 	container, err := sqlstore.New("postgres", dbConn(), dbLog)
