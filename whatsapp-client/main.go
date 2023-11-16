@@ -109,15 +109,9 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 // }
 
 func GPTResponseText(messages []models.RoleMessage, ctx context.Context, n int) (string, error) {
-	clientId := os.Getenv("CLIENT_ID")
-	clientInt, err := strconv.Atoi(clientId)
-	fmt.Println("Cliente ID:", clientId)
-	if err != nil {
-		return "", err
-	}
 
 	payload := models.IabotsPayload{
-		CustomerID: clientInt,
+		CustomerID: clientId,
 		Messages:   messages,
 	}
 
@@ -194,7 +188,12 @@ func (u *UserManager) addMessageToHistory(message models.RoleMessage) {
 	u.historyMessages = append(u.historyMessages, message)
 }
 
+var clientId = 2
+
 func main() {
+	arg := os.Args[1]
+	clientId, _ = strconv.Atoi(arg)
+
 	godotenv.Load()
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
