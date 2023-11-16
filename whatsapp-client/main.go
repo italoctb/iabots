@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -190,12 +191,36 @@ func (u *UserManager) addMessageToHistory(message models.RoleMessage) {
 
 var clientId = 2
 
-func main() {
-	if len(os.Args) > 1 {
-		arg := os.Args[1]
-		clientId, _ = strconv.Atoi(arg)
+type Env struct {
+	Client int
+	jid    string
+}
+
+func ExtractJidClient() Env {
+	dyno := os.Getenv("DYNO")
+	if dyno == "" {
+		return Env{
+			Client: 2,
+			jid:    "558599169414",
+		}
 	}
+
+	parts := strings.Split(dyno, ".")
+	strs := strings.Split(parts[0], "_")
+	client, _ := strconv.Atoi(strs[2])
+	jid := strs[1]
+	return Env{
+		Client: client,
+		jid:    jid,
+	}
+}
+
+var currentEnv Env
+
+func main() {
+
 	godotenv.Load()
+	currentEnv = ExtractJidClient()
 	fmt.Printf("ENV: %+v\n", os.Environ())
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
@@ -204,14 +229,14 @@ func main() {
 		panic(err)
 	}
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
-	deviceStore, err := container.GetFirstDevice()
+	jid, err := types.ParseJID(currentEnv.jid)
+	deviceStore, err := container.GetDevice(jid)
 	if err != nil {
 		panic(err)
 	}
 	clientLog := waLog.Stdout("Client", "DEBUG", true)
 	client := whatsmeow.NewClient(deviceStore, clientLog)
 	wpp := NewWpp(client)
-	wpp.Client.SendPresence(types.PresenceAvailable)
 
 	if client.Store.ID == nil {
 		// No ID stored, new login
@@ -237,6 +262,7 @@ func main() {
 			panic(err)
 		}
 	}
+	wpp.Client.SendPresence(types.PresenceAvailable)
 
 	// Listen to Ctrl+C (you can also do something else that prevents the program from exiting)
 	c := make(chan os.Signal, 1)
