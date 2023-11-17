@@ -228,8 +228,9 @@ func main() {
 		panic(err)
 	}
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
-	jid, err := types.ParseJID(currentEnv.jid)
-	deviceStore, err := container.GetDevice(jid)
+	jid, err := types.ParseJID(currentEnv.jid + "@s.whatsapp.net")
+	fmt.Println("JID:", jid)
+	deviceStore, err := container.GetFirstDevice()
 	if err != nil {
 		panic(err)
 	}
