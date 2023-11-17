@@ -15,6 +15,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"whatsapp_client/models"
 
 	"github.com/joho/godotenv"
@@ -228,6 +230,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
 	jid, err := types.ParseJID(currentEnv.jid)
 	fmt.Println("JID:", jid)
@@ -245,6 +248,38 @@ func main() {
 	clientLog := waLog.Stdout("Client", "DEBUG", true)
 	client := whatsmeow.NewClient(deviceStore, clientLog)
 	wpp := NewWpp(client)
+
+	router := gin.Default()
+	type Message struct {
+		jid     string
+		message string
+	}
+	router.POST("/api/v1/send", func(c *gin.Context) {
+		var message Message
+		c.BindJSON(&message)
+		jid, err := types.ParseJID(message.jid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+		res, err := wpp.Client.SendMessage(context.Background(), jid, &waProto.Message{
+			Conversation: &message.message,
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ok",
+			"res":     res,
+		})
+	})
+	go router.Run(":" + os.Getenv("PORT"))
 
 	if client.Store.ID == nil {
 		// No ID stored, new login
