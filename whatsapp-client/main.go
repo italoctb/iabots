@@ -202,7 +202,7 @@ func ExtractJidClient() Env {
 	if dyno == "" {
 		return Env{
 			Client: 2,
-			jid:    "558599169414",
+			jid:    "558591694114",
 		}
 	}
 
