@@ -23,6 +23,7 @@ import (
 	"github.com/mdp/qrterminal"
 	"go.mau.fi/whatsmeow"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
+	"go.mau.fi/whatsmeow/store"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
@@ -228,11 +229,18 @@ func main() {
 		panic(err)
 	}
 	// If you want multiple sessions, remember their JIDs and use .GetDevice(jid) or .GetAllDevices() instead.
-	jid, err := types.ParseJID(currentEnv.jid + "@s.whatsapp.net")
+	jid, err := types.ParseJID(currentEnv.jid)
 	fmt.Println("JID:", jid)
-	deviceStore, err := container.GetFirstDevice()
+	allDevices, err := container.GetAllDevices()
 	if err != nil {
 		panic(err)
+	}
+	//iterar na lista de allDevices para selecionar um device cujo id seja igual jid
+	var deviceStore *store.Device
+	for _, d := range allDevices {
+		if d.ID.User == currentEnv.jid {
+			deviceStore = d
+		}
 	}
 	clientLog := waLog.Stdout("Client", "DEBUG", true)
 	client := whatsmeow.NewClient(deviceStore, clientLog)
