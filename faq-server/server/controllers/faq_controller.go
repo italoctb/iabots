@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
@@ -186,6 +187,8 @@ func GPTWithFaqs(c *gin.Context) {
 		completePrompt += fmt.Sprintf("\nq: %s \na: %s", faq.Question, faq.Answer)
 	}
 
+	completePrompt += todayInfo()
+
 	gptConfig.Prompt = completePrompt
 
 	text, err := adapters.GPTChatCompletion(gptConfig, payload.Messages)
@@ -203,6 +206,11 @@ func GPTWithFaqs(c *gin.Context) {
 			"faqs":   faqs,
 		},
 	)
+}
+
+func todayInfo() string {
+	today := time.Now()
+	return fmt.Sprintf("; Dia hoje: %d-%02d-%02d;", today.Year(), today.Month(), today.Day())
 }
 
 func ShowFaqs(c *gin.Context) {
