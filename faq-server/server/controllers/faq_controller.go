@@ -210,8 +210,8 @@ func GPTWithFaqs(c *gin.Context) {
 
 func todayInfo() string {
 	today := time.Now()
-	// deve retornar dia mes ano e dia da semana
-	return fmt.Sprintf("; Hoje é %s, %d de %s de %d;", today.Weekday(), today.Day(), today.Month(), today.Year())
+	// deve retornar dia mes ano e dia da semana e horas e minutos e segundos
+	return fmt.Sprintf("; Hoje é %s, %d de %s de %d. Agora são %d horas, %d minutos e %d segundos. Responda sempre em português brasileiro; ", today.Weekday().String(), today.Day(), today.Month().String(), today.Year(), today.Hour(), today.Minute(), today.Second())
 }
 
 func ShowFaqs(c *gin.Context) {
