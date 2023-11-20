@@ -88,7 +88,9 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 			}
 
 			if text != "" {
-				go wpp.Client.SendMessage(user.context, v.Info.Sender, &waProto.Message{
+				toJid := v.Info.Sender
+				toJid.Device = 0
+				go wpp.Client.SendMessage(user.context, toJid, &waProto.Message{
 					Conversation: &text},
 				)
 			}
