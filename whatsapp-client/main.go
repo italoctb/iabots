@@ -248,6 +248,9 @@ func main() {
 			deviceStore = d
 		}
 	}
+	if deviceStore == nil {
+		deviceStore = container.NewDevice()
+	}
 	clientLog := waLog.Stdout("Client", "DEBUG", true)
 	client := whatsmeow.NewClient(deviceStore, clientLog)
 	wpp := NewWpp(client)
