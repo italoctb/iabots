@@ -23,12 +23,12 @@ import (
 	"github.com/mdp/qrterminal"
 	"go.mau.fi/whatsmeow"
 
-	//	waProto "go.mau.fi/whatsmeow/binary/proto"
+	waProto "go.mau.fi/whatsmeow/binary/proto"
 	"go.mau.fi/whatsmeow/store"
 	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 
-	//"go.mau.fi/whatsmeow/types/events"
+	"go.mau.fi/whatsmeow/types/events"
 	waLog "go.mau.fi/whatsmeow/util/log"
 )
 
@@ -43,65 +43,65 @@ func NewWpp(client *whatsmeow.Client) *Wpp {
 }
 
 func (wpp *Wpp) EventHandler(evt interface{}) {
-	/*
-		switch v := evt.(type) {
-		case *events.Message:
 
-			msg := v.Message.GetConversation()
-			if v.Message.ExtendedTextMessage != nil {
-				msg += v.Message.ExtendedTextMessage.GetText()
-			}
-			fmt.Println("Numero do usuario:", v.Info.Sender.User)
-			var user *UserManager
-			if v.Info.IsFromMe {
-				user = getUser(v.Info.Chat.User)
-				user.lastUserInteraction = time.Now()
-				user.addMessageToHistory(models.RoleMessage{
-					Role:    "assistant",
-					Content: msg,
-				})
-			} else {
-				fmt.Println("Received a message!", v.Message.GetConversation())
-				user = getUser(v.Info.Sender.User)
-				user.addMessageToHistory(models.RoleMessage{
-					Role:    "user",
-					Content: msg,
-				})
+	switch v := evt.(type) {
+	case *events.Message:
 
-			}
+		msg := v.Message.GetConversation()
+		if v.Message.ExtendedTextMessage != nil {
+			msg += v.Message.ExtendedTextMessage.GetText()
+		}
+		fmt.Println("Numero do usuario:", v.Info.Sender.User)
+		var user *UserManager
+		if v.Info.IsFromMe {
+			user = getUser(v.Info.Chat.User)
+			user.lastUserInteraction = time.Now()
+			user.addMessageToHistory(models.RoleMessage{
+				Role:    "assistant",
+				Content: msg,
+			})
+		} else {
+			fmt.Println("Received a message!", v.Message.GetConversation())
+			user = getUser(v.Info.Sender.User)
+			user.addMessageToHistory(models.RoleMessage{
+				Role:    "user",
+				Content: msg,
+			})
 
-			if user.context != nil {
-				user.cancel()
-				user.context, user.cancel = context.WithCancel(context.Background())
-			}
-			if user.context == nil {
-				user.context, user.cancel = context.WithCancel(context.Background())
-			}
+		}
 
-			if user.lastUserInteraction.IsZero() || time.Since(user.lastUserInteraction) > 15*time.Minute {
-				wpp.Client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
-				text, err := GPTResponseText(user.historyMessages, user.context, 5)
+		if user.context != nil {
+			user.cancel()
+			user.context, user.cancel = context.WithCancel(context.Background())
+		}
+		if user.context == nil {
+			user.context, user.cancel = context.WithCancel(context.Background())
+		}
 
-				user.addMessageToHistory(models.RoleMessage{
-					Role:    "assistant",
-					Content: text,
-				})
-				fmt.Println("Texto da resposta:", text)
-				if err != nil {
-					fmt.Println("Erro ao obter o texto da resposta:", err)
-				}
+		if user.lastUserInteraction.IsZero() || time.Since(user.lastUserInteraction) > 15*time.Minute {
+			wpp.Client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
+			text, err := GPTResponseText(user.historyMessages, user.context, 5)
 
-				if text != "" {
-					toJid := v.Info.Sender
-					toJid.Device = 0
-					go wpp.Client.SendMessage(user.context, toJid, &waProto.Message{
-						Conversation: &text},
-					)
-				}
-				user.context = nil
+			user.addMessageToHistory(models.RoleMessage{
+				Role:    "assistant",
+				Content: text,
+			})
+			fmt.Println("Texto da resposta:", text)
+			if err != nil {
+				fmt.Println("Erro ao obter o texto da resposta:", err)
 			}
 
-		}*/
+			if text != "" {
+				toJid := v.Info.Sender
+				toJid.Device = 0
+				go wpp.Client.SendMessage(user.context, toJid, &waProto.Message{
+					Conversation: &text},
+				)
+			}
+			user.context = nil
+		}
+
+	}
 }
 
 // func getResponseTextWithRetry(message string, jwid string) (string, error) {
