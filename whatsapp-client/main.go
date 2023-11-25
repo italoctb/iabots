@@ -236,7 +236,9 @@ var customerConfigs CustomerConfigs
 
 func getCustomerConfigs() CustomerConfigs {
 	//requisição post ao faq-server para obter o tempo de freeze na rota /api/v1/faqs/gpt-config e atrelar a variavel customerConfigs
-	req, err := http.NewRequest("GET", "https://faq-server-pv.herokuapp.com/api/v1/faqs/gpt-config", nil)
+	id := ExtractJidClient().Client
+	idStr := strconv.Itoa(id)
+	req, err := http.NewRequest("GET", "https://faq-server-pv.herokuapp.com/api/v1/faqs/gpt-config/?id="+idStr, nil)
 	if err != nil {
 		fmt.Println("Erro ao obter CustomerConfigs na newRequest:", err)
 		return CustomerConfigs{
@@ -258,6 +260,9 @@ func getCustomerConfigs() CustomerConfigs {
 		return CustomerConfigs{
 			FreezeTime: 15,
 		}
+	}
+	if customerConfigs.FreezeTime == 0 {
+		customerConfigs.FreezeTime = 15
 	}
 	return customerConfigs
 }

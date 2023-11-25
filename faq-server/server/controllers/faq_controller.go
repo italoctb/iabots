@@ -336,7 +336,7 @@ func GetChatGptConfig(c *gin.Context) {
 	db := database.GetDatabase()
 
 	var config models.ChatGPTConfig
-	err := db.First(&config, "id = ?", id).Error
+	err := db.First(&config, "customer_id", id).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
