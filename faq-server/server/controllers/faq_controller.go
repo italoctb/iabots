@@ -333,10 +333,11 @@ func GetChatGptConfigs(c *gin.Context) {
 
 func GetChatGptConfig(c *gin.Context) {
 	id := c.Param("id")
+	newID, err := strconv.Atoi(id)
 	db := database.GetDatabase()
 
 	var config models.ChatGPTConfig
-	err := db.First(&config, "customer_id", id).Error
+	err = db.First(&config, "customer_id", newID).Error
 
 	if err != nil {
 		c.JSON(400, gin.H{
