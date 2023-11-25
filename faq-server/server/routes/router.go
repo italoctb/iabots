@@ -76,7 +76,8 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			Faq.POST("/", controllers.CreateFaq)
 			Faq.POST("/search", controllers.SearchFaqByEmbedding)
 			Faq.POST("/gpt", controllers.GPTWithFaqs)
-
+			Faq.GET("/gpt-configs", controllers.GetChatGptConfigs)
+			Faq.GET("/gpt-config", controllers.GetChatGptConfig)
 			Faq.PUT("/", controllers.UpdateFaq)
 			Faq.DELETE("/:id", controllers.DeleteFaq)
 			Faq.DELETE("/deleteall", controllers.DeleteAllFaqs)

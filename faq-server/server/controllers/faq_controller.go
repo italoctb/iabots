@@ -314,3 +314,36 @@ func DeleteAllFaqs(c *gin.Context) {
 
 	c.Status(204)
 }
+
+func GetChatGptConfigs(c *gin.Context) {
+	db := database.GetDatabase()
+
+	configs := []models.ChatGPTConfig{}
+	err := db.Find(&configs).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "Cannot list ChatGPTConfigs: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, configs)
+}
+
+func GetChatGptConfig(c *gin.Context) {
+	id := c.Param("id")
+	db := database.GetDatabase()
+
+	var config models.ChatGPTConfig
+	err := db.First(&config, "id = ?", id).Error
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "Cannot list ChatGPTConfigs: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, config)
+}
