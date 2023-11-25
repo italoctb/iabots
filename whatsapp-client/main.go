@@ -50,6 +50,7 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 		// if v.Info.Timestamp < time.Now().Add(-10*time.Minute).Unix() {
 		controlTime := v.Info.Timestamp.After(time.Now().Add(-10 * time.Minute))
 		controlGroup := !v.Info.IsGroup
+		freezeTime := time.Duration(customerConfigs.FreezeTime) * time.Minute
 		if controlTime && controlGroup {
 			msg := v.Message.GetConversation()
 			if v.Message.ExtendedTextMessage != nil {
@@ -82,7 +83,7 @@ func (wpp *Wpp) EventHandler(evt interface{}) {
 				user.context, user.cancel = context.WithCancel(context.Background())
 			}
 
-			if user.lastUserInteraction.IsZero() || time.Since(user.lastUserInteraction) > 15*time.Minute {
+			if user.lastUserInteraction.IsZero() || time.Since(user.lastUserInteraction) > freezeTime {
 				wpp.Client.SendChatPresence(v.Info.Sender, types.ChatPresenceComposing, types.ChatPresenceMediaText)
 				text, err := GPTResponseText(user.historyMessages, user.context, 5)
 
