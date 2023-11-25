@@ -69,6 +69,7 @@ type ChatGPTPayload struct {
 }
 
 func GPTChatCompletion(config models.ChatGPTConfig, messages []RoleMessage) (string, error) {
+	config.FreezeTime = nil
 	ChatGPTPayload := ChatGPTPayload{
 		ChatGPTConfig: config,
 		Messages:      []RoleMessage{},

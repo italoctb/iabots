@@ -9,5 +9,5 @@ type ChatGPTConfig struct {
 	PresencePenalty  float32 `json:"presence_penalty"`
 	Prompt           string  `json:"prompt,omitempty"`
 	CustomerID       *uint   `json:"customer_id,omitempty"`
-	FreezeTime       int     `json:"freeze_time"`
+	FreezeTime       *int    `json:"freeze_time,omitempty"`
 }
