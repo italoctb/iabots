@@ -228,10 +228,44 @@ func ExtractJidClient() Env {
 
 var currentEnv Env
 
+type CustomerConfigs struct {
+	FreezeTime int `json:"freeze_time"`
+}
+
+var customerConfigs CustomerConfigs
+
+func getFreezeTime() int {
+	//requisição post ao faq-server para obter o tempo de freeze na rota /api/v1/faqs/gpt-config e atrelar a variavel customerConfigs
+	req, err := http.NewRequest("GET", "https://faq-server-pv.herokuapp.com/api/v1/faqs/gpt-config", nil)
+	if err != nil {
+		fmt.Println("Erro ao obter o tempo de freeze:", err)
+		return 0
+	}
+	req.Header.Set("Content-Type", "application/json")
+	response, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("Erro ao obter o tempo de freeze:", err)
+		return 0
+	}
+	defer response.Body.Close()
+	decoder := json.NewDecoder(response.Body)
+	if err := decoder.Decode(&customerConfigs); err != nil {
+		fmt.Println("Erro ao obter o tempo de freeze:", err)
+		return 0
+	}
+	return customerConfigs.FreezeTime
+}
+
 func main() {
 
 	godotenv.Load()
 	currentEnv = ExtractJidClient()
+	customerConfigs = CustomerConfigs{
+		FreezeTime: getFreezeTime(),
+	}
+	if customerConfigs.FreezeTime == 0 {
+		customerConfigs.FreezeTime = 15
+	}
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
 	container, err := sqlstore.New("postgres", dbConn(), dbLog)
