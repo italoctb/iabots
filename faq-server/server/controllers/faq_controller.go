@@ -333,7 +333,16 @@ func GetChatGptConfigs(c *gin.Context) {
 
 func GetChatGptConfig(c *gin.Context) {
 	id := c.Param("id")
+	fmt.Println("Received ID:", id) // Adicionado para debugging
 	newID, err := strconv.Atoi(id)
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "Error converting ID: " + err.Error(),
+		})
+		return
+	}
+
 	db := database.GetDatabase()
 
 	var config models.ChatGPTConfig

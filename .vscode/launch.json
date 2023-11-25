@@ -14,5 +14,15 @@
       "env": {},
       "showLog": true
     },
+    {
+      "name": "server",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/faq-server/main.go",
+      "args": [],
+      "env": {},
+      "showLog": true
+    },
   ]
 }
