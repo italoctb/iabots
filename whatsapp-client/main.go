@@ -234,38 +234,40 @@ type CustomerConfigs struct {
 
 var customerConfigs CustomerConfigs
 
-func getFreezeTime() int {
+func getCustomerConfigs() CustomerConfigs {
 	//requisição post ao faq-server para obter o tempo de freeze na rota /api/v1/faqs/gpt-config e atrelar a variavel customerConfigs
 	req, err := http.NewRequest("GET", "https://faq-server-pv.herokuapp.com/api/v1/faqs/gpt-config", nil)
 	if err != nil {
-		fmt.Println("Erro ao obter o tempo de freeze:", err)
-		return 0
+		fmt.Println("Erro ao obter CustomerConfigs na newRequest:", err)
+		return CustomerConfigs{
+			FreezeTime: 15,
+		}
 	}
 	req.Header.Set("Content-Type", "application/json")
 	response, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Println("Erro ao obter o tempo de freeze:", err)
-		return 0
+		fmt.Println("Erro ao obter CustomerConfigs no do method:", err)
+		return CustomerConfigs{
+			FreezeTime: 15,
+		}
 	}
 	defer response.Body.Close()
 	decoder := json.NewDecoder(response.Body)
 	if err := decoder.Decode(&customerConfigs); err != nil {
-		fmt.Println("Erro ao obter o tempo de freeze:", err)
-		return 0
+		fmt.Println("Erro ao obter CustomerConfigs no Decode:", err)
+		return CustomerConfigs{
+			FreezeTime: 15,
+		}
 	}
-	return customerConfigs.FreezeTime
+	return customerConfigs
 }
 
 func main() {
 
 	godotenv.Load()
 	currentEnv = ExtractJidClient()
-	customerConfigs = CustomerConfigs{
-		FreezeTime: getFreezeTime(),
-	}
-	if customerConfigs.FreezeTime == 0 {
-		customerConfigs.FreezeTime = 15
-	}
+	customerConfigs = getCustomerConfigs()
+
 	dbLog := waLog.Stdout("Database", "DEBUG", true)
 	// Make sure you add appropriate DB connector imports, e.g. github.com/mattn/go-sqlite3 for SQLite
 	container, err := sqlstore.New("postgres", dbConn(), dbLog)
