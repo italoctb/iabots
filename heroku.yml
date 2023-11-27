@@ -9,6 +9,7 @@ build:
     c_558591694114_3: whatsapp-client/Dockerfile
     c_558599229941_4: whatsapp-client/Dockerfile
     c_558592382216_5: whatsapp-client/Dockerfile
+    c_558592860231_5: whatsapp-client/Dockerfile
 
   config:
     NODE_ENV: production    
