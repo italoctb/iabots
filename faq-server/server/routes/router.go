@@ -71,7 +71,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		}
 		Faq := main.Group("faq")
 		{
-			Faq.GET("/:id", controllers.ShowFaqsFromCustomer)
+			Faq.GET("/:id", controllers.ShowFaqByCustomer)
 			Faq.GET("/", controllers.ShowFaqs)
 			Faq.POST("/", controllers.CreateFaq)
 			Faq.POST("/search", controllers.SearchFaqByEmbedding)

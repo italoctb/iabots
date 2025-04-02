@@ -13,6 +13,38 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// ShowFaq by customer_id
+func ShowFaqByCustomer(c *gin.Context) {
+	id := c.Param("id")
+	newID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "ID has to be an integer",
+		})
+		return
+	}
+
+	db := database.GetDatabaseSql()
+
+	var faq models.Faq
+	err = db.QueryRow("SELECT id, customer_id, question, answer FROM faqs WHERE customer_id = $1", newID).Scan(&faq.ID, &faq.CustomerId, &faq.Question, &faq.Answer)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(404, gin.H{
+				"error": "FAQ not found",
+			})
+			return
+		}
+		c.JSON(500, gin.H{
+			"error": "Internal Server Error: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, faq)
+}
+
 func ShowFaq(c *gin.Context) {
 	id := c.Param("id")
 	newID, err := strconv.Atoi(id)
