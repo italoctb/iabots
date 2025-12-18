@@ -1,7 +1,0 @@
-{
-  "name": "Go Websocket Chat Demo",
-  "image": "heroku/go:1.18",
-  "mount_dir": "src/app/whatsapp-api-pv",
-  "repository": "https://github.com/italoctb/whatsapp-api-pv",
-  "addons": ["heroku-postgresql:hobby-dev"]
-}
