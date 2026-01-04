@@ -1,22 +1,18 @@
-# Usa imagem oficial mínima do Go
-FROM golang:1.21-alpine
+FROM golang:1.25.5-alpine3.23 AS build
 
-# Define diretório de trabalho
 WORKDIR /app
 
-# Copia go.mod e go.sum primeiro para cache de dependências
-COPY go.mod ./
-COPY go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
 
-# Copia o restante do código
 COPY . .
 
-# Compila o binário
-RUN go build -o main ./cmd/api
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/api ./cmd/api
 
-# Expondo porta da API
-EXPOSE 8080
+FROM alpine:3.23
 
-# Comando que será executado ao iniciar o container
-CMD [\"/app/main\"]
+WORKDIR /app
+COPY --from=build /bin/api /app/api
+
+EXPOSE 5001
+CMD ["/app/api"]

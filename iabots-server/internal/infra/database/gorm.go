@@ -2,8 +2,9 @@ package database
 
 import (
 	"fmt"
-	"iabots-server/configs"
 	"log"
+
+	"iabots-server/configs"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -31,8 +32,4 @@ func NewDatabase() (*Database, error) {
 
 	log.Println("✅ Database connected successfully")
 	return &Database{DB: db}, nil
-}
-
-func (d *Database) GetDB() *gorm.DB {
-	return d.DB
 }

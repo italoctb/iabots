@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:18.1-alpine
+    container_name: iabots-db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - iabots-db-data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    networks:
+      - iabots-net
+
+  api:
+    build:
+      context: .
+      dockerfile: deployment/docker/api.Dockerfile
+    container_name: iabots-api
+    depends_on:
+      - db
+    ports:
+      - "${APP_PORT:-5001}:${APP_PORT:-5001}"
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_PORT: "${APP_PORT:-5001}"
+      GIN_MODE: ${GIN_MODE:-debug}
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_SSLMODE: ${DB_SSLMODE:-disable}
+    networks:
+      - iabots-net
+
+
+volumes:
+  iabots-db-data:
+
+networks:
+  iabots-net:
+    driver: bridge

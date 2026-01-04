@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"iabots-server/internal/domain/entities"
+	i "iabots-server/internal/domain/repositories"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -11,7 +12,10 @@ type UserGormRepository struct {
 	db *gorm.DB
 }
 
-func NewUserGormRepository(db *gorm.DB) *UserGormRepository {
+// Segurança de que UserGormRepository implementa i.UserRepository em tempo de compilação
+var _ i.UserRepository = (*UserGormRepository)(nil)
+
+func NewUserGormRepository(db *gorm.DB) i.UserRepository {
 	return &UserGormRepository{db: db}
 }
 
