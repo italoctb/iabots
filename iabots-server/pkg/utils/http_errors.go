@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,35 +13,68 @@ type APIError struct {
 	Message string `json:"error"`
 }
 
-// Common errors
-var (
-	ErrUnauthorized   = errors.New("unauthorized")
-	ErrForbidden      = errors.New("forbidden")
-	ErrNotFound       = errors.New("not found")
-	ErrBadRequest     = errors.New("bad request")
-	ErrInternalServer = errors.New("internal server error")
-	ErrValidation     = errors.New("validation error")
-)
-
-// SendError handles the error response
-func SendError(c *gin.Context, err error) {
-	apiErr := mapErrorToAPIError(err)
-	c.AbortWithStatusJSON(apiErr.Code, apiErr)
+// AppError = erro tipado (domínio/validação/etc)
+type AppError struct {
+	Code    int
+	Message string
+	Err     error // opcional: erro original (para log)
 }
 
-func mapErrorToAPIError(err error) APIError {
-	switch {
-	case errors.Is(err, ErrUnauthorized):
-		return APIError{Code: http.StatusUnauthorized, Message: ErrUnauthorized.Error()}
-	case errors.Is(err, ErrForbidden):
-		return APIError{Code: http.StatusForbidden, Message: ErrForbidden.Error()}
-	case errors.Is(err, ErrNotFound):
-		return APIError{Code: http.StatusNotFound, Message: ErrNotFound.Error()}
-	case errors.Is(err, ErrBadRequest):
-		return APIError{Code: http.StatusBadRequest, Message: ErrBadRequest.Error()}
-	case errors.Is(err, ErrValidation):
-		return APIError{Code: http.StatusUnprocessableEntity, Message: ErrValidation.Error()}
-	default:
-		return APIError{Code: http.StatusInternalServerError, Message: ErrInternalServer.Error()}
+func (e *AppError) Error() string {
+	return e.Message
+}
+
+func (e *AppError) Unwrap() error {
+	return e.Err
+}
+
+// Helpers "bonitos" pra padronizar
+func BadRequest(msg string) error {
+	return &AppError{Code: http.StatusBadRequest, Message: msg}
+}
+
+func Validation(msg string) error {
+	return &AppError{Code: http.StatusUnprocessableEntity, Message: msg}
+}
+
+func Unauthorized(msg string) error {
+	if msg == "" {
+		msg = "unauthorized"
 	}
+	return &AppError{Code: http.StatusUnauthorized, Message: msg}
+}
+
+func Forbidden(msg string) error {
+	if msg == "" {
+		msg = "forbidden"
+	}
+	return &AppError{Code: http.StatusForbidden, Message: msg}
+}
+
+func NotFound(msg string) error {
+	if msg == "" {
+		msg = "not found"
+	}
+	return &AppError{Code: http.StatusNotFound, Message: msg}
+}
+
+// SendError padroniza resposta e loga o erro real
+func SendError(c *gin.Context, err error) {
+	log.Printf("[ERROR] %s %s -> %v", c.Request.Method, c.Request.URL.Path, err)
+
+	// Se já for AppError, respeita code+message
+	var appErr *AppError
+	if errors.As(err, &appErr) {
+		c.AbortWithStatusJSON(appErr.Code, APIError{
+			Code:    appErr.Code,
+			Message: appErr.Message,
+		})
+		return
+	}
+
+	// fallback (erro inesperado)
+	c.AbortWithStatusJSON(http.StatusInternalServerError, APIError{
+		Code:    http.StatusInternalServerError,
+		Message: "internal server error",
+	})
 }

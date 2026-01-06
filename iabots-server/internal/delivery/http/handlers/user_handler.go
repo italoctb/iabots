@@ -20,7 +20,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	var req user.CreateUserParams
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		utils.SendError(ctx, utils.ErrBadRequest)
+		utils.SendError(ctx, err)
 		return
 	}
 

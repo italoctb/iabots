@@ -25,12 +25,12 @@ var Env EnvConfig
 func LoadEnv() {
 	Env = EnvConfig{
 		AppEnv:  getEnv("APP_ENV", "local"),
-		AppPort: firstEnv("APP_PORT", "PORT", "8080"),
+		AppPort: firstEnv("APP_PORT", "PORT", "5001"),
 		DB: DBConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     getEnv("DB_PORT", "5432"),
 			User:     getEnv("DB_USER", "iabots"),
-			Password: getEnv("DB_PASSWORD", ""),
+			Password: getEnv("DB_PASSWORD", "123456"),
 			Name:     getEnv("DB_NAME", "iabots_local"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		},

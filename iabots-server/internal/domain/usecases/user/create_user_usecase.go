@@ -1,9 +1,9 @@
 package user
 
 import (
-	"errors"
 	"iabots-server/internal/domain/entities"
 	"iabots-server/internal/domain/repositories"
+	"iabots-server/pkg/utils"
 	"iabots-server/pkg/validators"
 
 	"github.com/google/uuid"
@@ -25,16 +25,16 @@ func NewCreateUserUseCase(userRepo repositories.UserRepository) *CreateUserUseCa
 
 func (uc *CreateUserUseCase) Execute(input CreateUserParams) (*entities.User, error) {
 	if err := validators.ValidateEmail(input.Email); err != nil {
-		return nil, err
+		return nil, utils.Validation(err.Error())
 	}
 
 	if err := validators.ValidatePassword(input.Password); err != nil {
-		return nil, err
+		return nil, utils.Validation(err.Error())
 	}
 
 	existing, _ := uc.userRepo.FindByEmail(input.Email)
 	if existing != nil {
-		return nil, errors.New("email already in use")
+		return nil, utils.Validation("email já cadastrado")
 	}
 
 	user := &entities.User{

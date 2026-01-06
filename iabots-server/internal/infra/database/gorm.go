@@ -30,6 +30,14 @@ func NewDatabase() (*Database, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	log.Println("✅ Database connected successfully")
+	if err := AutoMigrate(db); err != nil {
+		return nil, err
+	}
+
+	log.Println("✅ Database connected and migrated successfully")
 	return &Database{DB: db}, nil
+}
+
+func (d *Database) GetDB() *gorm.DB {
+	return d.DB
 }
