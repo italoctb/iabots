@@ -1,7 +1,7 @@
 package user
 
 import (
-	"iabots-server/internal/domain/entities"
+	. "iabots-server/internal/domain/entities"
 	"iabots-server/internal/domain/repositories"
 	"iabots-server/pkg/utils"
 	"iabots-server/pkg/validators"
@@ -23,7 +23,7 @@ func NewCreateUserUseCase(userRepo repositories.UserRepository) *CreateUserUseCa
 	return &CreateUserUseCase{userRepo: userRepo}
 }
 
-func (uc *CreateUserUseCase) Execute(input CreateUserParams) (*entities.User, error) {
+func (usecase *CreateUserUseCase) Execute(input CreateUserParams) (*User, error) {
 	if err := validators.ValidateEmail(input.Email); err != nil {
 		return nil, utils.Validation(err.Error())
 	}
@@ -32,20 +32,20 @@ func (uc *CreateUserUseCase) Execute(input CreateUserParams) (*entities.User, er
 		return nil, utils.Validation(err.Error())
 	}
 
-	existing, _ := uc.userRepo.FindByEmail(input.Email)
+	existing, _ := usecase.userRepo.FindByEmail(input.Email)
 	if existing != nil {
 		return nil, utils.Validation("email já cadastrado")
 	}
 
-	user := &entities.User{
+	user := &User{
 		ID:       uuid.New(),
 		Name:     input.Name,
 		Email:    input.Email,
 		Password: input.Password,
-		Role:     entities.RoleClient,
+		Role:     RoleCustomer,
 	}
 
-	if err := uc.userRepo.Create(user); err != nil {
+	if err := usecase.userRepo.Create(user); err != nil {
 		return nil, err
 	}
 

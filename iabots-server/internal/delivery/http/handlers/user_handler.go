@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"iabots-server/internal/domain/usecases/user"
+	. "iabots-server/internal/domain/usecases/user"
 	"iabots-server/pkg/utils"
 	"net/http"
 
@@ -9,15 +9,15 @@ import (
 )
 
 type UserHandler struct {
-	usecase *user.CreateUserUseCase
+	usecase *CreateUserUseCase
 }
 
-func NewUserHandler(usecase *user.CreateUserUseCase) *UserHandler {
+func NewUserHandler(usecase *CreateUserUseCase) *UserHandler {
 	return &UserHandler{usecase: usecase}
 }
 
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
-	var req user.CreateUserParams
+	var req CreateUserParams
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		utils.SendError(ctx, err)

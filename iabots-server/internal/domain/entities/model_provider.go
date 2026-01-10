@@ -1,12 +1,20 @@
 package entities
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type ModelProvider struct {
-	ID              uuid.UUID `gorm:"primaryKey"`
-	Name            string    // ex: "OpenAI", "Cohere", "Mistral", "Google"
-	ModelName       string    // ex: "gpt-4", "command-r", "gemini-pro"
-	TokenCostPrompt float64   // preço por 1k tokens enviados (prompt)
-	TokenCostAnswer float64   // preço por 1k tokens de resposta (completion)
-	Active          bool
+	ID       uuid.UUID `gorm:"primaryKey"`
+	Provider string    `gorm:"size:50;not null;uniqueIndex:idx_provider_model"`
+	Model    string    `gorm:"size:50;not null;uniqueIndex:idx_provider_model"`
+
+	CostPromptPer1M float64 // USD por 1M tokens de input
+	CostOutputPer1M float64 // USD por 1M tokens de output
+
+	Active    bool `gorm:"default:true"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

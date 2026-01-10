@@ -1,15 +1,15 @@
 package repositories
 
 import (
-	"iabots-server/internal/domain/entities"
+	. "iabots-server/internal/domain/entities"
 
 	"github.com/google/uuid"
 )
 
 type UserRepository interface {
-	Create(user *entities.User) error
-	Update(user *entities.User) error
-	FindByID(id uuid.UUID) (*entities.User, error)
-	FindByEmail(email string) (*entities.User, error)
+	Create(user *User) error
+	Update(user *User) error
+	FindByID(id uuid.UUID) (*User, error)
+	FindByEmail(email string) (*User, error)
 	Delete(id uuid.UUID) error
 }

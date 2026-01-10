@@ -2,7 +2,7 @@ package user
 
 import (
 	"iabots-server/internal/delivery/http/handlers"
-	"iabots-server/internal/domain/usecases/user"
+	. "iabots-server/internal/domain/usecases/user"
 	"iabots-server/internal/infra/database"
 	"iabots-server/internal/infra/database/repositories"
 )
@@ -13,7 +13,7 @@ type UserModule struct {
 
 func NewUserModule(db *database.Database) *UserModule {
 	userRepo := repositories.NewUserGormRepository(db.DB)
-	usecase := user.NewCreateUserUseCase(userRepo)
+	usecase := NewCreateUserUseCase(userRepo)
 	handler := handlers.NewUserHandler(usecase)
 
 	return &UserModule{

@@ -9,6 +9,7 @@ import (
 type CustomerRepository interface {
 	Create(customer *Customer) error
 	FindByID(id uuid.UUID) (*Customer, error)
+	FindByUserID(userID uuid.UUID) ([]Customer, error)
 	FindByWhatsappNumber(number string) (*Customer, error)
 	Update(customer *Customer) error
 	Delete(id uuid.UUID) error

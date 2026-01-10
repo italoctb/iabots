@@ -12,6 +12,48 @@ services:
       - "${DB_PORT:-5432}:5432"
     networks:
       - iabots-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build:
+      context: .
+      dockerfile: deployment/docker/migrate.Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_SSLMODE: ${DB_SSLMODE:-disable}
+    networks:
+      - iabots-net
+    restart: "no"
+      
+  seed:
+    build:
+      context: .
+      dockerfile: deployment/docker/seed.Dockerfile
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_SSLMODE: ${DB_SSLMODE:-disable}
+    networks:
+      - iabots-net
+    restart: "no"
 
   api:
     build:
@@ -19,7 +61,8 @@ services:
       dockerfile: deployment/docker/api.Dockerfile
     container_name: iabots-api
     depends_on:
-      - db
+      migrate:
+        condition: service_completed_successfully
     ports:
       - "${APP_PORT:-5001}:${APP_PORT:-5001}"
     environment:

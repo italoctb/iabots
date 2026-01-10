@@ -11,6 +11,6 @@ type FaqRepository interface {
 	Update(faq *Faq) error
 	Delete(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*Faq, error)
-	FindByCustomerID(customerID uuid.UUID) ([]Faq, error)
-	SearchByEmbeddings(customerID uuid.UUID, embedding []float32, limit int) ([]Faq, error)
+	FindByBotID(botID uuid.UUID) ([]Faq, error)
+	SearchByEmbeddings(botID uuid.UUID, embedding []float32, limit int) ([]Faq, error)
 }

@@ -1,30 +1,23 @@
-package entities
+package enums
 
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
-type User struct {
-	ID       uuid.UUID `gorm:"primaryKey"`
-	Email    string    `gorm:"unique"`
-	Password string    // hash
-	Name     string
-	Role     UserRoleType
-}
-
+// --------------------
+// UserRole Enum
+// --------------------
 type UserRoleType string
 
 const (
 	RoleAdmin    UserRoleType = "admin"
-	RoleCustomer UserRoleType = "cliente"
+	RoleCostumer UserRoleType = "cliente"
 )
 
 func (r UserRoleType) IsValid() bool {
 	switch r {
-	case RoleAdmin, RoleCustomer:
+	case RoleAdmin, RoleCostumer:
 		return true
 	default:
 		return false
@@ -56,5 +49,5 @@ func (r *UserRoleType) UnmarshalJSON(data []byte) error {
 }
 
 func AllUserRoles() []UserRoleType {
-	return []UserRoleType{RoleAdmin, RoleCustomer}
+	return []UserRoleType{RoleAdmin, RoleCostumer}
 }
